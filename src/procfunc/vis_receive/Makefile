@@ -15,17 +15,15 @@ IMAGE:=$(DOCKER_REGISTRY_HOST)/$(DOCKER_REGISTRY_USER)/$(IMAGE_NAME)
 
 .PHONY: build
 build:  ## Build the docker image
-	docker pull $(IMAGE):buildenv || true
-	docker build --pull --cache-from $(IMAGE):buildenv --target buildenv \
-		-t $(IMAGE):buildenv .
-
-	docker pull $(IMAGE):latest || true
-	docker build --cache-from $(IMAGE):latest --cache-from $(IMAGE):buildenv \
-		-t $(IMAGE):latest .
+	docker build -t $(IMAGE):$(VERSION) .
 
 .PHONY: ls
 ls:  ## List docker images
 	docker image ls --filter=reference="$(IMAGE)"
+
+.PHONY: push
+push:   ## Push the image to the remote repository
+	docker push "$(IMAGE):$(VERSION)"
 
 # ----------------------------------------------------------------------------
 # Help target

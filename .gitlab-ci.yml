@@ -1,0 +1,284 @@
+variables:
+  GIT_STRATEGY: clone
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_BRANCH
+
+stages:
+  - build_procfunc
+  - build_workflows
+  - publish
+
+pss_receive-procfunc:
+  stage: build_procfunc
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - apk add make
+    - cd src/procfunc/pss_receive/pss-receive
+    - make build
+    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
+    - make push
+  only:
+    refs:
+      - master
+    changes:
+      - src/procfunc/pss_receive/pss-receive
+
+pss_send-procfunc:
+  stage: build_procfunc
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - apk add make
+    - cd src/procfunc/pss_receive/pss-send
+    - make build
+    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
+    - make push
+  only:
+    refs:
+      - master
+    changes:
+      - src/procfunc/pss_receive/pss-send
+
+vis_receive-procfunc:
+  stage: build_procfunc
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - apk add make
+    - cd src/procfunc/vis_receive
+    - make build DOCKER_REGISTRY_USER=sdp-prototype
+    - docker image ls
+    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
+    - make push DOCKER_REGISTRY_USER=sdp-prototype
+  only:
+    refs:
+      - master
+    changes:
+      - src/procfunc/vis_receive
+
+.docker_build_workflow:
+  stage: build_workflows
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - apk add make git
+    - make build PREFIX_BUILD=${CI_REGISTRY_IMAGE}
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - make push PREFIX_BUILD=${CI_REGISTRY_IMAGE}
+
+build-batch_imaging:
+  extends: .docker_build_workflow
+  before_script:
+     - cd src/workflows/batch_imaging
+  only:
+    changes:
+      - src/workflows/batch_imaging/*
+
+build-delivery:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/delivery
+  only:
+    changes:
+      - src/workflows/delivery/*
+
+build-plasma_pipeline:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/plasma_pipeline
+  only:
+    changes:
+      - src/workflows/plasma_pipeline/*
+
+build-pss_receive:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/pss_receive
+  only:
+    changes:
+      - src/workflows/pss_receive/*
+
+build-test_batch:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/test_batch
+  only:
+    changes:
+      - src/workflows/test_batch/*
+
+build-test_daliuge:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/test_daliuge
+  only:
+    changes:
+      - src/workflows/test_daliuge/*
+
+build-test_dask:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/test_dask
+  only:
+    changes:
+      - src/workflows/test_dask/*
+
+build-test_new_receive:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/test_new_receive
+  only:
+    changes:
+      - src/workflows/test_new_receive/*
+
+build-test_realtime:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/test_realtime
+  only:
+    changes:
+      - src/workflows/test_realtime/*
+
+build-test_receive_addresses:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/test_receive_addresses
+  only:
+    changes:
+      - src/workflows/test_receive_addresses/*
+
+build-vis_receive:
+  extends: .docker_build_workflow
+  before_script:
+    - cd src/workflows/vis_receive
+  only:
+    changes:
+      - src/workflows/vis_receive/*
+
+.publish:
+  stage: publish
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - apk add make git
+    - make pull PREFIX_BUILD=${CI_REGISTRY_IMAGE}
+    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
+    - make push_release PREFIX_BUILD=${CI_REGISTRY_IMAGE} || true
+
+publish-batch_imaging:
+  extends: .publish
+  before_script:
+    - cd src/workflows/batch_imaging
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/batch_imaging/*
+
+publish-delivery:
+  extends: .publish
+  before_script:
+    - cd src/workflows/delivery
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/delivery/*
+
+publish-plasma_pipeline:
+  extends: .publish
+  before_script:
+    - cd src/workflows/plasma_pipeline
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/plasma_pipeline/*
+
+publish-pss_receive:
+  extends: .publish
+  before_script:
+    - cd src/workflows/pss_receive
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/pss_receive/*
+
+publish-test_batch:
+  extends: .publish
+  before_script:
+    - cd src/workflows/test_batch
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/test_batch/*
+
+publish-test_daliuge:
+  extends: .publish
+  before_script:
+    - cd src/workflows/test_daligue
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/test_daliuge/*
+
+publish-test_dask:
+  extends: .publish
+  before_script:
+    - cd src/workflows/test_dask
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/test_dask/*
+
+publish-test_new_receive:
+  extends: .publish
+  before_script:
+    - cd src/workflows/test_new_receive
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/test_new_receive/*
+
+publish-test_realtime:
+  extends: .publish
+  before_script:
+    - cd src/workflows/test_realtime
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/test_realtime/*
+
+publish-test_receive_addresses:
+  extends: .publish
+  before_script:
+    - cd src/workflows/test_receive_addresses
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/test_receive_addresses/*
+
+publish-vis_receive:
+  extends: .publish
+  before_script:
+    - cd src/workflows/vis_receive
+  only:
+    refs:
+      - master
+    changes:
+      - src/workflows/vis_receive/*

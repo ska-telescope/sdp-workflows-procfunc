@@ -1,4 +1,4 @@
-FROM timcornwell/rascil-full
+FROM nexus.engageska-portugal.pt/rascil-docker/rascil-full
 
 WORKDIR /rascil
 
