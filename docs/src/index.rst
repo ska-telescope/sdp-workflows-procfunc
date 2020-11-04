@@ -3,9 +3,14 @@ SDP Workflows and Processing Functions
 
 .. toctree::
   :maxdepth: 1
-  :caption: Workflows
 
-  workflows/workflows
+  workflow_development
+  vis_receive
+  pss_receive
+  batch_imaging
+  delivery
+  test_workflows
+
 
 Indices and tables
 ------------------

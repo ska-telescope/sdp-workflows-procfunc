@@ -93,7 +93,7 @@ sdpcfg list values /pb/pb-mvp01-20200318-0001/state
 
 and the output should look like this:
 
-```json
+```
 /pb/pb-mvp01-20200318-0001/state = {
   "receive_addresses": {
     "calibration_B": {
