@@ -71,6 +71,7 @@ def main(argv):
             'chart': 'dask/dask',
             'values': {
                 'jupyter.enabled': 'false',
+                'jupyter.rbac': 'false',
                 'worker.replicas': 2,
                 # We want to access Dask in-cluster using a DNS name
                 'scheduler.serviceType': 'ClusterIP'
