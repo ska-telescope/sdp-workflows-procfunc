@@ -9,6 +9,7 @@ SDP Workflows and Processing Functions
   pss_receive
   batch_imaging
   delivery
+  test_new_receive
   test_workflows
 
 
