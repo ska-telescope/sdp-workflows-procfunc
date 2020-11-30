@@ -28,23 +28,6 @@ pss_receive-procfunc:
     changes:
       - src/procfunc/pss_receive/pss-receive
 
-pss_send-procfunc:
-  stage: build_procfunc
-  image: docker:stable
-  services:
-    - docker:dind
-  script:
-    - apk add make
-    - cd src/procfunc/pss_receive/pss-send
-    - make build
-    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-    - make push
-  only:
-    refs:
-      - master
-    changes:
-      - src/procfunc/pss_receive/pss-send
-
 vis_receive-procfunc:
   stage: build_procfunc
   image: docker:stable

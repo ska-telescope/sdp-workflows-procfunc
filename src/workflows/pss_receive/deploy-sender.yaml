@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+    name: sender
+    namespace: sdp
+spec:
+  template:
+    metadata:
+        labels:
+           app: sender-pod
+    spec:
+       restartPolicy: Never
+       containers:
+       - name: sender
+         image: nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.0
+         command: ["/opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/pipeline/cheetah_pipeline"]
+         args: ["-s", "sigproc", "-p", "SinglePulse", "--log-level", "debug", "--config", "/opt/pss-pipeline/configurations/mvp_emulator_config.xml"]
+         resources: 
+             limits:
+                 cpu: "10"
+             requests:
+                 cpu: "8"
+         imagePullPolicy: IfNotPresent
+         tty: True
+  completions: 1
+          
+   
+
