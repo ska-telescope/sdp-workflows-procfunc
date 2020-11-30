@@ -2,54 +2,31 @@
 Example PSS Receive workflow
 """
 
-# pylint: disable=C0103
+# pylint: disable=invalid-name
 
 import logging
-import ska_sdp_config
-import sys
+import ska.logging
+from ska_sdp_workflow import workflow
 
-# Initialise logging and configuration
-logging.basicConfig()
-log = logging.getLogger('pss_recv')
+# Initialise logging
+ska.logging.configure_logging()
+log = logging.getLogger('pss_receive')
 log.setLevel(logging.INFO)
-config = ska_sdp_config.Config()
 
+# Claim Processing block
+pb = workflow.ProcessingBlock()
 
-def main(argv):
-    pb_id = argv[0]
-    for txn in config.txn():
-        txn.take_processing_block(pb_id, config.client_lease)
-        pb = txn.get_processing_block(pb_id)
+# Create work phase
+log.info("Create work phase")
+work_phase = pb.create_phase('Work', [])
 
-    # Show
-    log.info("Claimed processing block %s", pb)
+with work_phase:
 
     # Deploy PSS Receive with 1 worker.
-    log.info("Deploying PSS Receive...")
-    deploy_id = 'proc-{}-pss-receive'.format(pb.id)
-    deploy = ska_sdp_config.Deployment(
-        deploy_id, "helm", {
-            'chart': 'pss-receive',  # Helm chart deploy/charts/pss-receive
-        })
-    for txn in config.txn():
-        txn.create_deployment(deploy)
-    try:
+    work_phase.ee_deploy_helm('pss-receive')
+    log.info("Done, now idling...")
 
-        # Just idle until processing block or disappears
-        log.info("Done, now idling...")
-        for txn in config.txn():
-            if not txn.is_processing_block_owner(pb.id):
-                break
-            txn.loop(True)
-
-    finally:
-
-        # Clean up pss receive deployment.
-        for txn in config.txn():
-            txn.delete_deployment(deploy)
-
-        config.close()
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+    for txn in work_phase.wait_loop():
+        if work_phase.is_sbi_finished(txn):
+            break
+        txn.loop(wait=True)

@@ -1,3 +1,11 @@
-dask == 2.30.0
-distributed == 2.30.0
-ska-sdp-config >= 0.0.8
+--index-url https://nexus.engageska-portugal.pt/repository/pypi/simple
+--extra-index-url https://pypi.org/simple
+dask==2.30.0
+distributed==2.30.0
+msgpack>=1.0.0
+blosc >=1.9.2
+lz4>=3.1.0
+numpy==1.18.1
+tornado==6.0.4
+ska-logging
+ska-sdp-workflow >= 0.1.0

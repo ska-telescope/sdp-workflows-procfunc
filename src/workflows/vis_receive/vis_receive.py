@@ -1,55 +1,32 @@
 """
-Example Vis Receive workflow
+Example visibility receive workflow.
 """
 
-# pylint: disable=C0103
+# pylint: disable=invalid-name
 
-import sys
 import logging
-import ska_sdp_config
+import ska.logging
+from ska_sdp_workflow import workflow
 
-# Initialise logging and configuration
-logging.basicConfig()
-log = logging.getLogger('vis_recv')
+# Initialise logging
+ska.logging.configure_logging()
+log = logging.getLogger('vis_receive')
 log.setLevel(logging.INFO)
-config = ska_sdp_config.Config()
 
+# Claim processing block
+pb = workflow.ProcessingBlock()
 
-def main(argv):
-    pb_id = argv[0]
-    for txn in config.txn():
-        txn.take_processing_block(pb_id, config.client_lease)
-        pb = txn.get_processing_block(pb_id)
+# Create work phase
+log.info("Create work phase")
+work_phase = pb.create_phase('Work', [])
 
-    # Show
-    log.info("Claimed processing block %s", pb)
+with work_phase:
 
-    # Deploy Vis Receive with 1 worker.
-    log.info("Deploying Vis Receive...")
-    deploy_id = 'proc-{}-vis-receive'.format(pb.id)
-    deploy = ska_sdp_config.Deployment(
-        deploy_id, "helm", {
-            'chart': 'vis-receive',  # Helm chart deploy/charts/vis-receive
-        })
-    for txn in config.txn():
-        txn.create_deployment(deploy)
-    try:
+    # Deploy visibility receive
+    work_phase.ee_deploy_helm('vis-receive')
+    log.info("Done, now idling...")
 
-        # Just idle until processing block or disappears
-        log.info("Done, now idling...")
-        for txn in config.txn():
-            if not txn.is_processing_block_owner(pb.id):
-                break
-            txn.loop(True)
-
-    finally:
-
-        # Clean up vis receive deployment.
-        for txn in config.txn():
-            txn.delete_deployment(deploy)
-
-        config.close()
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+    for txn in work_phase.wait_loop():
+        if work_phase.is_sbi_finished(txn):
+            break
+        txn.loop(wait=True)

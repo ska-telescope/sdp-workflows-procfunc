@@ -2,89 +2,37 @@
 Workflow to test real-time processing.
 """
 
-import sys
-import signal
 import logging
 import ska.logging
-import ska_sdp_config
+
+from ska_sdp_workflow import workflow
 
 ska.logging.configure_logging()
 LOG = logging.getLogger('test_realtime')
 LOG.setLevel(logging.DEBUG)
 
+# Claim processing block
+pb = workflow.ProcessingBlock()
 
-def main(argv):
-    # Get processing block ID from first argument
-    pb_id = argv[0]
-    LOG.info('PB id: %s', pb_id)
+# Get parameters from processing block.
+parameters = pb.get_parameters()
+length = parameters.get('length', 3600.0)
 
-    # Get connection to config DB
-    LOG.info('Opening connection to config DB')
-    config = ska_sdp_config.Config()
+# Make buffer requests - right now this doesn't do anything, but it gives an
+# example of how resource requests will be made
+in_buffer_res = pb.request_buffer(100.0e6, tags=['sdm'])
+out_buffer_res = pb.request_buffer(length * 6e15 / 3600, tags=['visibilities'])
 
-    # Claim processing block
-    for txn in config.txn():
-        txn.take_processing_block(pb_id, config.client_lease)
-        pb = txn.get_processing_block(pb_id)
-    LOG.info('Claimed processing block')
+# Create work phase
+LOG.info("Creating work phase")
+work_phase = pb.create_phase('Work', [in_buffer_res, out_buffer_res])
 
-    sbi_id = pb.sbi_id
-    LOG.info('SBI id: %s', sbi_id)
+with work_phase:
 
-    # Set state to indicate workflow is waiting for resources
-    LOG.info('Setting status to WAITING')
-    for txn in config.txn():
-        state = txn.get_processing_block_state(pb_id)
-        state['status'] = 'WAITING'
-        txn.update_processing_block_state(pb_id, state)
+    LOG.info("Pretending to deploy execution engine.")
+    LOG.info("Done, now idling...")
 
-    # Wait for resources_available to be true
-    LOG.info('Waiting for resources to be available')
-    for txn in config.txn():
-        state = txn.get_processing_block_state(pb_id)
-        ra = state.get('resources_available')
-        if ra is not None and ra:
-            LOG.info('Resources are available')
+    for txn in work_phase.wait_loop():
+        if work_phase.is_sbi_finished(txn):
             break
         txn.loop(wait=True)
-
-    # Set state to indicate processing has started
-    LOG.info('Setting status to RUNNING')
-    for txn in config.txn():
-        state = txn.get_processing_block_state(pb_id)
-        state['status'] = 'RUNNING'
-        txn.update_processing_block_state(pb_id, state)
-
-    # ... Do some processing here ...
-
-    # Wait until SBI is marked as FINISHED or CANCELLED
-    LOG.info('Waiting for SBI to end')
-    for txn in config.txn():
-        sbi = txn.get_scheduling_block(sbi_id)
-        status = sbi.get('status')
-        if status in ['FINISHED', 'CANCELLED']:
-            LOG.info('SBI is %s', status)
-            break
-        txn.loop(wait=True)
-
-    # Set state to indicate processing has ended
-    LOG.info('Setting status to %s', status)
-    for txn in config.txn():
-        state = txn.get_processing_block_state(pb_id)
-        state['status'] = status
-        txn.update_processing_block_state(pb_id, state)
-
-    # Close connection to config DB
-    LOG.info('Closing connection to config DB')
-    config.close()
-
-
-def terminate(signal, frame):
-    """Terminate the program."""
-    LOG.info('Asked to terminate')
-    sys.exit(0)
-
-
-if __name__ == '__main__':
-    signal.signal(signal.SIGTERM, terminate)
-    main(sys.argv[1:])
