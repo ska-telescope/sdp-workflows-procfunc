@@ -1,5 +1,5 @@
-SDP Workflows and Processing Functions
-======================================
+SDP Science Pipelines
+=====================
 
 .. toctree::
   :maxdepth: 1

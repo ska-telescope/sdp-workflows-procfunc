@@ -1,1 +1,1 @@
-.. mdinclude:: ../../src/workflows/pss-receive/README.md
+.. mdinclude:: ../../src/workflows/pss_receive/README.md
