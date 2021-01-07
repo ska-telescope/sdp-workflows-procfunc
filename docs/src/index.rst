@@ -1,5 +1,5 @@
-SDP Science Pipelines
-=====================
+SDP Science Pipeline Workflows
+==============================
 
 .. toctree::
   :maxdepth: 1
