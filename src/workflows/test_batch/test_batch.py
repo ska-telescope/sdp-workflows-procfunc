@@ -20,7 +20,7 @@ duration = parameters.get('duration', 60.0)
 
 # Make buffer request - right now this doesn't do anything, but it gives an
 # example of how resource requests will be made
-out_buffer_res = pb.request_buffer(100.0e6, tags=['images'])
+out_buffer_res = pb.request_buffer('out', '500Mi', tags=['images'])
 
 # Create work phase with the (fake) buffer request.
 work_phase = pb.create_phase('Work', [out_buffer_res])
