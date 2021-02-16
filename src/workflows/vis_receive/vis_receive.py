@@ -48,6 +48,7 @@ if parameters:
 log.info("Create work phase")
 work_phase = pb.create_phase("Work", [])
 
+# Assuming we are only deploying one receive processes
 with work_phase:
 
     # Deploy visibility receive
