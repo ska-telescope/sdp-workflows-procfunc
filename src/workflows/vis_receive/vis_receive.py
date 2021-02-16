@@ -17,6 +17,7 @@ log.setLevel(logging.INFO)
 
 # Claim processing block
 pb = workflow.ProcessingBlock()
+parameters = pb.get_parameters()
 
 log.info("Setting default parameters")
 values = {
@@ -34,7 +35,14 @@ values = {
     "reader.num_repeats": 1,
     "results.push": "false",
     "pvc.name": "local-pvc",
+    "pvc.path": "/mnt/data",
 }
+
+# Override the defaults with values from the PB
+if parameters:
+    for param in parameters.keys():
+        log.info("Over-riding defaults with parameters from the PB")
+        values[param] = parameters.get(param)
 
 # Create work phase
 log.info("Create work phase")
