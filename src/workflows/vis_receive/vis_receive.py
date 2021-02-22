@@ -52,13 +52,14 @@ work_phase = pb.create_phase("Work", [])
 with work_phase:
 
     # Deploy visibility receive
-    work_phase.ee_deploy_helm("receive", values)
+    ee_receive = work_phase.ee_deploy_helm("receive", values)
+    deploy_id = ee_receive.get_id()
 
     # Get the channel link map from SBI
     scan_types = pb.get_scan_types()
 
     # Add receive addresses to pb
-    pb.receive_addresses(scan_types)
+    pb.receive_addresses(scan_types, chart_name=deploy_id)
 
     log.info("Done, now idling...")
 
