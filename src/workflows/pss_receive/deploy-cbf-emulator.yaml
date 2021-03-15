@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+    name: cbf-emulator
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+        labels:
+           app: cbf-emulator-pod
+    spec:
+       restartPolicy: Never
+       containers:
+       - name: cbf-emulator
+         image: nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.1
+         command: ["/opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/emulator/cheetah_emulator"]
+         args: ["--log-level", "debug", "--config", "/opt/pss-pipeline/configurations/cbf_emulator_config.xml"]
+         resources:
+             limits:
+                 cpu: "4"
+             requests:
+                 cpu: "1"
+         imagePullPolicy: IfNotPresent
+         tty: True

@@ -5,41 +5,41 @@ This is a cheetah based UDP receiver for ingesting PSS single pulse candidate da
 ## Description
 
 
-Cheetah is a set of real-time pulsar and fast-transient searching pipelines designed to process data from the CFB. Its end products are candidate pulsar and transient signals which are exported to the SDP for further analysis. The pipelines are started using a command line executable which can be configured using command line flags or by passing a file containing pipeline configuration information.  A full description of the pipeline can be found in the PSS Detailed Design Document.
+Cheetah is a set of real-time pulsar and fast-transient searching pipelines designed to process data from the CBF. Its end products are candidate pulsar and transient signals which are exported to the SDP for further analysis. The pipelines are started using a command line executable which can be configured using command line flags or by passing a file containing pipeline configuration information.  A full description of the pipeline can be found in the PSS Detailed Design Document.
 
-For the purposes of this demonstration we will use the cheetah\_pipeline executable to read in raw time-frequency data, from which it will produce a set of single pulse candidates which are exported over a UDP stream using SPEAD2. We will use a separate cheetah based pipeline to "receive" this data on the SDP side.
+For the purposes of this demonstration we will use the cheetah\_pipeline executable (PSS) to receive UDP time-frequency data from a CBF emulator pipeline, from which it will produce single-pulse candidate data which is exported over a UDP stream using SPEAD2. We will use a separate cheetah based pipeline to "receive" this data on the SDP side.
 
 The executables are served from the pss-centos-docker repository.
 
 ## Running send and receive standalone
 
-To demostrate their functionality, it is possible to deploy the sender and receiver in same docker container by downloading and running the pss docker.
+To demostrate their functionality, it is possible to deploy the CBF emulator, the PSS pipeline and the SDP receive pipeline in same docker container by downloading and running the pss docker.
 
 Pull the PSS docker image by running.
 
 ```bash
-$ docker pull nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.0
+$ docker pull nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.1
 ```
 
 It's important to ensure that the maximum receive buffer size for all connection types is appropriately tuned on the host so it may be necessary to run the following command before we start the docker container. If this is not set correctly, SPEAD2 will print a warning to the console when we start the receiver and we risk packets being lost.
 
 ```bash
-$ sudo sysctl net.core.wmem_max=16777216 && sudo sysctl net.core.rmem_max=16777216
+sudo sysctl net.core.rmem_max=268435456 && sudo sysctl net.core.wmem_max=268435456 && sudo sysctl net.core.netdev_max_backlog=65536 && sudo sysctl net.core.wmem_default=268435456 && sudo sysctl net.core.rmem_default=268435456
 ```
 
 Once the docker image is pulled we can start it. The entrypoint starts the receiver listening so we don't need to override it.
 
 ```bash
-$ docker run -it nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.0
+$ docker run -it nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.1
 ```
 
-In a seperate terminal we can connect to this docker in order to trigger the cheetah pipeline to send to data to the receiver (over localhost).
+In a seperate terminal we can connect to this docker in order to trigger the cheetah pipeline to start listening for a UDP stream from the CBF emulator.
 
 ```bash
 $ docker exec -it <container id> bash
 ```
 
-By default the cheetah\_pipeline is configured (in our config file) to send candidate data to pss-receive, but this time we want to send to localhost, so we'll need to adjust this parameter in our config file. This file is located at /opt/pss-pipeline/configurations/mvp\_emulator\_config.xml. Find the lines where we configure the IP address spead2 will send to and replace "pss-receive" with "localhost and save the file".
+By default the cheetah\_pipeline is configured (in our config files) to send candidate data to pss-receive and our CBF emulator will send data to cbf-receive, but this time we want both to send to localhost, so we'll need to adjust this parameter in our config files. This file is located at /opt/pss-pipeline/configurations/mvp\_emulator\_config.xml. Find the lines where we configure the IP address spead2 will send to and replace "pss-receive" with "localhost" and save the file". Do the same with cbf-emulator.xml (in the same directory) and replace "cbf-receive" with "localhost".
 
 
 ```bash
@@ -60,35 +60,62 @@ By default the cheetah\_pipeline is configured (in our config file) to send cand
 Nagivate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/pipeline. In this directory we'll find the cheetah\_pipeline executable. Run this with -h to see the options. We'll trigger the cheetah pipeline with the following command.
 
 ```bash
-$ ./cheetah_pipeline -s sigproc -p SinglePulse --log-level debug --config /opt/pss-pipeline/configurations/mvp_emulator_config.xml
+$ ./cheetah_pipeline -s udp_low -p SinglePulse --log-level debug --config /opt/pss-pipeline/configurations/mvp_emulator_config.xml
 ```
 
-We see a series of log messages from cheetah and from spead2 on the console and we see similar messages in the terminal we started the receiver in, ending with
+Where:
+
+* -s denotes the source of the input data stream (in this case a udp stream from the CBF emulator
+* -p is the specifici pipeline that cheetah should run (in this case the single pulse search pipeline)
+* --config is the path to the configuration file
+
+We see some output from the pss pipeline to show that it is in a listening state.
 
 ```bash
-[debug][tid=140052772771712][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpeadLoggingAdapter.cpp:50][1606396139]spead: UDP reader: end of stream detected
-[log][tid=140052772771712][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/SpCclSpeadReader.cpp:126][1606396139]Received end of SpCclSpead Stream - resetting
+[log][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:148][1613571585]Creating Beams....
+[log][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/rcpt_low/src/UdpStream.cpp:37][1613571585]listening for UDP Low stream from 0.0.0.0:9029
+[debug][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613571585]Creating sink of type spccl_files (id=spccl_files)
+[debug][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613571585]Creating sink of type spccl_sigproc_files (id=candidate_files)
+[debug][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613571585]Creating sink of type spccl_spead (id=spead_stream)
+[log][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpCclSpeadStreamer.cpp:46][1613571585]Spead UDP output stream on 127.0.0.1:9021 (limited to 10000000.000000 bytes/sec)
+[log][tid=140131450292096][/opt/build/thirdparty/panda/install/include/panda/detail/packet_stream/PacketStreamImpl.cpp:125][1613571585]start packet stream listening on:0.0.0.0:9029
+[log][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:171][1613571585]Finished creating pipelines
+[log][tid=140131450292096][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:223][1613571585]Starting Beam: 1
+
 ```
 
-The cheetah\_pipeline has completed but the receiver returns to a "waiting" state. At this point you can choose to re-run the cheetah\_pipeline and send another batch, or terminate the receiver by closing the terminal.
+We can then trigger the CBF emulator to send to data into pss where the single pulse search pipeline will process it. Connect a third terminal to this docker container and nagivate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/emulator. In this directory we'll find the cheetah\_emulator executable. Run this with -h to see the options. We'll trigger the emulator with the following command.
 
-What just happened? We triggered the pss pipeline to process test data read from a filterbank file. This file contains data from a 10 s observation of the radio pulsar PSR B1929+10 undertaken with the Lovell telescope at Jodrell Bank. This data was passed through a single pulse search emulator module which generated candidates at a rate specified in the cheetah\_pipeline configuration file. In this case we generate 1 fake single pulse candidate per second which means we should have approximately 10 candidates generated (in might be slightly less than 10 if we have a sifter enabled that will filter candidates that are very close together in time and have a similar DM). The receiver places the list of received candidates in /home/pss2sdp/. If we check here we'll find a .spccl file containing the received candidates' parameters.
 
 ```bash
-MJD(decimal days)           dm(dimensionless)        width(ms)        sigma
-56352.6344797533 MJD                 20              4               37
-56352.6345109622 MJD                 50              9               49
-56352.6345211904 MJD                 80              8               29
-56352.6345252881 MJD                 70              6               62
-56352.6345387311 MJD                 80              1               87
-56352.6345429563 MJD                 80              7               20
-56352.6345546126 MJD                 20              1               14
-56352.6345690422 MJD                 60              4               18
-56352.6345823104 MJD                 30              3               23
-56352.6345889267 MJD                 80              3               58
-``` 
+$ ./cheetah_emulator --config /opt/pss-pipeline/configurations/cbf_emulator_config.xml --log-level debug
+```
 
-## Deploying pss_receive as an SDP workflow in Minikube
+The emulator will produce some log messages to show it's working and streaming Gaussian noise over UDP.
+
+```bash
+[log][tid=140592331782016][/opt/build/thirdparty/panda/install/include/panda/detail/SocketConnectionImpl.cpp:203][1613572250][this=0x1792948] setting remote endpoint:127.0.0.1:9029
+[log][tid=140592331782016][/opt/pss-pipeline/thirdparty/cheetah/cheetah/emulator/src/emulator_main.cpp:63][1613572250]emulator using generator: 'gaussian_noise'
+```
+
+and after a short time, the cheetah\_pipeline will show a bunch of log message to show that it is processing the data that it is receiving from CBF.
+
+```bash
+[debug][tid=140130935695104][/opt/build/thirdparty/panda/install/include/panda/detail/packet_stream/ChunkerContext.cpp:453][1613572937]clearing chunk 0x7f72c0099610
+[debug][tid=140130935695104][/opt/build/thirdparty/panda/install/include/panda/detail/DataManager.cpp:221][1613572937]pushing data 0x7f72c0099610
+```
+
+Eventually we'll see that pss-recieve is starting to recieve candidate data when log message like the following appear
+
+```bash
+[debug][tid=139774761645952][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpeadLoggingAdapter.cpp:50][1613572975]spead: packet with 1432 bytes of payload at offset 52279064 added to heap 9
+```
+
+Whenever we like, we can simple CTRL+C on the CBF emulator and wait for the final packets to arrive at pss-receive.
+
+What just happened? We triggered the pss pipeline to listen for test data from a udp stream. This data was passed through a single pulse search emulator module and the resulting single pulse candidate data was exported to the pss-receive ppliation.
+
+## Deploying pss\_receive as an SDP workflow in Minikube
 
 Generalised instruction for deploying the SDP can be found at https://gitlab.com/ska-telescope/sdp-integration/-/tree/master/charts.
 
@@ -103,7 +130,7 @@ and set the minikube buffer size
 
 ```bash
 $ minikube ssh
-> sudo sysctl net.core.wmem_max=16777216 && sudo sysctl net.core.rmem_max=16777216
+> sudo sysctl net.core.rmem_max=268435456 && sudo sysctl net.core.wmem_max=268435456 && sudo sysctl net.core.netdev_max_backlog=65536 && sudo sysctl net.core.wmem_default=268435456 && sudo sysctl net.core.rmem_default=268435456
 > CTRL+D
 ```
 
@@ -112,6 +139,7 @@ Create the SDP namespace, add the SDP chart repository to helm and launch the SD
 ```bash
 $ kubectl create namespace sdp
 $ helm repo add ska https://nexus.engageska-portugal.pt/repository/helm-chart
+$ helm repo update
 $ helm install test ska/sdp --set helmdeploy.createClusterRole=true
 ```
 
@@ -159,7 +187,7 @@ $ kubectl exec -it sdp-console-0 -- bash
 Now let's start the pss\_receive workflow which will deploy the cheetah receiver container
 
 ```bash
-$ sdpcfg process realtime:pss\_receive:0.2.0
+$ sdpcfg process realtime:pss_receive:0.2.0
 ```
 
 We can watch the deployment of the workflow in the sdp namespace
@@ -167,79 +195,92 @@ We can watch the deployment of the workflow in the sdp namespace
 ```bash
 $ watch -n 0.5 kubectl get all - n sdp
   NAME                                               READY   STATUS    RESTARTS   AGE
-  pod/proc-pb-sdpcfg-20201126-00000-workflow-phgwt   1/1     Running   0          30s
-  pod/pss-receive-zpgsf                              1/1     Running   0          23s
+  pod/proc-pb-sdpcfg-20210217-00003-workflow-njh8s   1/1     Running   0          21s
+  pod/pss-receive-9rsbf                              1/1     Running   0          14s
 
-  NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
-  service/pss-receive   ClusterIP   10.109.68.42   <none>        9021/UDP   23s
+  NAME                  TYPE        CLUSTER-IP	  EXTERNAL-IP   PORT(S)    AGE
+  service/pss-receive   ClusterIP   10.111.94.131   <none>        9021/UDP   14s
 
   NAME                                               COMPLETIONS   DURATION   AGE
-  job.batch/proc-pb-sdpcfg-20201126-00000-workflow   0/1           30s        30s
-  job.batch/pss-receive                              0/1           23s        23s
+  job.batch/proc-pb-sdpcfg-20210217-00003-workflow   0/1           21s        22s
+  job.batch/pss-receive                              0/1           14s        14s
 ```
 
 Looking at the logs from the pss-receive pod we can see the receiver waiting for data...
 
 ```bash
-$ kubectl logs pss-receive-zpgsf -n sdp
+$ kubectl logs pss-receive-9rsbf -n sdp
+[debug][tid=139702737897344][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613583356]Creating sink of type sp_candidate_data (id=candidate_files)
 ```
 
-and we have a service waiting to route data sent to the hostname pss-receive to this pod. Now to send this some data we can use the pss-send kubernetes manifest, deploy-sender.yaml. This will deploy cheetah as a sender pod and have it export data to pss-receive by running.
+and we have a service waiting to route data sent to the hostname pss-receive to this pod. Now to send this some data we can use the pss-pipeline kubernetes manifest, deploy-sender.yaml. This will deploy cheetah as a new pod. It will wait for data to arrive from the CBF emulator (which we'll deploy shortly) and when it arrives will run the single pulse emulator pipeline and export the candidate to the pss-receive application.
 
 ```bash
-$ kubectl apply -f deploy-sender.yaml -n sdp
+$ kubectl apply deploy-sender.yaml -n sdp
 ```
 
-Our sender will appear in the sdp namespace
+Our sender pod "pss-pipeline" will appear in the sdp namespace
 
 ```bash
- NAME                                               READY   STATUS              RESTARTS   AGE
- pod/proc-pb-sdpcfg-20201126-00000-workflow-phgwt   1/1     Running             0          7m43s
- pod/pss-receive-zpgsf                              1/1     Running             0          7m36s
- pod/sender-5r8s8                                   0/1     ContainerCreating   0          2s
+  NAME                                               READY   STATUS              RESTARTS   AGE
+  pod/proc-pb-sdpcfg-20210217-00003-workflow-njh8s   1/1     Running             0          3m9s
+  pod/pss-pipeline-wjdm6                             0/1     ContainerCreating   0          2s
+  pod/pss-receive-9rsbf                              1/1     Running             0          3m2s
 
- NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
- service/pss-receive   ClusterIP   10.109.68.42   <none>        9021/UDP   7m36s
+  NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+  service/cbf-receive   ClusterIP   10.102.80.249   <none>        9029/UDP   2s
+  service/pss-receive   ClusterIP   10.111.94.131   <none>        9021/UDP   3m2s
 
- NAME                                               COMPLETIONS   DURATION   AGE
- job.batch/proc-pb-sdpcfg-20201126-00000-workflow   0/1           7m43s      7m43s
- job.batch/pss-receive                              0/1           7m36s      7m36s
- job.batch/sender                                   0/1           2s         2s
+  NAME                                               COMPLETIONS   DURATION   AGE
+  job.batch/proc-pb-sdpcfg-20210217-00003-workflow   0/1           3m10s      3m11s
+  job.batch/pss-pipeline                             0/1           3s         3s
+  job.batch/pss-receive                              0/1           3m3s       3m3s
 ```
 
-Once the sender has finished running the cheetah pipeline and exporting candidates it will enter a completed state. We can check that candidates have arrived by connecting to the receiver pod and checking the directory /home/pss2sdp, just as we did above.
+We can see that the pss-pipeline is waiting for data from the CBF by running..
 
 ```bash
-kubectl exec -it pss-receive-zpgsf -- bash
+$ kubectl logs pss-pipeline-wjdm6 -n sdp
+  [log][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:148][1613583537]Creating Beams....
+  [log][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/rcpt_low/src/UdpStream.cpp:37][1613583537]listening for UDP Low stream from 0.0.0.0:9029
+  [debug][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613583537]Creating sink of type spccl_files (id=spccl_files)
+  [debug][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613583537]Creating sink of type spccl_sigproc_files (id=candidate_files)
+  [debug][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613583537]Creating sink of type spccl_spead (id=spead_stream)
+  [log][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpCclSpeadStreamer.cpp:46][1613583537]Spead UDP output stream on 10.111.94.131:9021 (limited to 10000000.000000 bytes/sec)
+  [log][tid=140007832209280][/opt/build/thirdparty/panda/install/include/panda/detail/packet_stream/PacketStreamImpl.cpp:125][1613583537]start packet stream listening on:0.0.0.0:9029
+  [log][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:171][1613583537]Finished creating pipelines
+  [log][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:223][1613583537]Starting Beam: 1
 ```
 
-The .spccl file contains the following lines
+Now we can deploy the CBF emulator to stream udp time frequency data using the following command...
 
 ```bash
- MJD(decimal days)           dm(dimensionless)        width(ms)        sigma
- 56352.6345109918 MJD                 50              7               90
- 56352.6345127696 MJD                 80              6               92
- 56352.6345161178 MJD                 70              9               23
- 56352.6345245652 MJD                 30              6               89
- 56352.6345299785 MJD                 40              1               23
- 56352.6345304259 MJD                 90              8               17
- 56352.634534257 MJD                  60              9               64
- 56352.6345442955 MJD                 50              9               34
- 56352.6345445415 MJD                 30              1               67
- 56352.6345708556 MJD                 80              9               18
-
+$ kubectl apply -f deploy-cbf-emulator.yaml -n sdp
 ```
 
-Our candidates have arrived.
+This will deploy a cbf-emulator pod. Now let's watch the logs of the pss-receive application and eventually we'll see packets arriving..
+
+```bash
+$ kubectl logs -f pss-receive-9rsbf -n sdp
+  .
+  .
+  [debug][tid=139702737897344][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpeadLoggingAdapter.cpp:50][1613584774]spead: packet with 1432 bytes of payload at offset 211172184 added to heap 2
+  [debug][tid=139702737897344][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpeadLoggingAdapter.cpp:50][1613584774]spead: packet with 1432 bytes of payload at offset 211173616 added to heap 2
+  [debug][tid=139702737897344][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpeadLoggingAdapter.cpp:50][1613584774]spead: packet with 1432 bytes of payload at offset 211175048 added to heap 2
+ .
+ .
+ .
+```
 
 ### Cleaning up.
 
-Deleting the completed sender job.
+We can simply turn off the CBF and PSS will the following..
 
 ```bash
-kubectl delete job sender -n sdp
+kubectl delete job cbf-emulator -n sdp
+kubectl delete job pss-pipeline -n sdp
+kubectl delete service cbf-receive -n sdp
 ```
-
 Removing the pss\_receive workflows using the sdp-console. First get a list of entries in the configuration database.
 
 ```bash
