@@ -16,7 +16,7 @@ import ska.logging
 from ska_sdp_workflow import workflow
 
 ska.logging.configure_logging()
-LOG = logging.getLogger('test_receive_addresses')
+LOG = logging.getLogger("test_receive_addresses")
 LOG.setLevel(logging.DEBUG)
 
 # Claim processing block
@@ -24,7 +24,7 @@ pb = workflow.ProcessingBlock()
 
 # Create work phase
 LOG.info("Create work phase")
-work_phase = pb.create_phase('Work', [])
+work_phase = pb.create_phase("Work", [])
 
 with work_phase:
 

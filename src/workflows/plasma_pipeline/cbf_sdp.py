@@ -12,7 +12,7 @@ from ska_sdp_workflow import workflow
 
 # Initialise logging
 ska.logging.configure_logging()
-log = logging.getLogger('cbf_sdp')
+log = logging.getLogger("cbf_sdp")
 log.setLevel(logging.INFO)
 
 # Claim Processing block
@@ -20,11 +20,11 @@ pb = workflow.ProcessingBlock()
 
 # Create work phase
 log.info("Create work phase")
-work_phase = pb.create_phase('Work', [])
+work_phase = pb.create_phase("Work", [])
 
 with work_phase:
 
-    work_phase.ee_deploy_helm('plasma-pipeline')
+    work_phase.ee_deploy_helm("plasma-pipeline")
     log.info("Done, now idling...")
 
     for txn in work_phase.wait_loop():

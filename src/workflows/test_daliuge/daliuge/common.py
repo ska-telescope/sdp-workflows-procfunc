@@ -32,50 +32,55 @@ from dlg.manager import constants, client
 
 def _get_lg(_workflow_id, _workflow_version):
     lg_fname = pkg_resources.resource_filename(
-        __name__, 'logical_graphs/simple_graph.json')
-    with open(lg_fname, 'rt') as f:
+        __name__, "logical_graphs/simple_graph.json"
+    )
+    with open(lg_fname, "rt") as f:
         return json.load(f)
 
 
-def _create_pg(logical_graph, processing_block, node_managers,
-               data_island_manager, zero_cost_run):
+def _create_pg(
+    logical_graph, processing_block, node_managers, data_island_manager, zero_cost_run
+):
 
-    logical_graph = pg_generator.fill(
-        logical_graph, processing_block.parameters)
+    logical_graph = pg_generator.fill(logical_graph, processing_block.parameters)
 
     unroll_kwargs = {}
     if zero_cost_run:
-        unroll_kwargs['zerorun'] = True
-        unroll_kwargs['app'] = 'dlg.apps.simple.SleepApp'
-    physical_graph_template = pg_generator.unroll(
-        logical_graph, **unroll_kwargs)
+        unroll_kwargs["zerorun"] = True
+        unroll_kwargs["app"] = "dlg.apps.simple.SleepApp"
+    physical_graph_template = pg_generator.unroll(logical_graph, **unroll_kwargs)
     physical_graph = pg_generator.partition(
         physical_graph_template,
-        'mysarkar',
+        "mysarkar",
         num_partitions=len(node_managers),
-        num_islands=1)
+        num_islands=1,
+    )
     physical_graph = pg_generator.resource_map(
-        physical_graph,
-        [data_island_manager] +
-        node_managers,
-        num_islands=1)
+        physical_graph, [data_island_manager] + node_managers, num_islands=1
+    )
     return physical_graph
 
 
-def run_processing_block(processing_block, status_callback, host='127.0.0.1',
-                         port=constants.ISLAND_DEFAULT_REST_PORT, zero_cost_run=False):
+def run_processing_block(
+    processing_block,
+    status_callback,
+    host="127.0.0.1",
+    port=constants.ISLAND_DEFAULT_REST_PORT,
+    zero_cost_run=False,
+):
     """Runs a ProcessingBlock to completion under daliuge"""
 
-    session_id = 'pb_%s' % processing_block.id
+    session_id = "pb_%s" % processing_block.id
     logical_graph = _get_lg(
-        processing_block.workflow['id'],
-        processing_block.workflow['version'])
+        processing_block.workflow["id"], processing_block.workflow["version"]
+    )
 
-    status_callback('preparing')
+    status_callback("preparing")
     nodes = client.CompositeManagerClient(host, port, timeout=None).nodes()
     physical_graph = _create_pg(
-        logical_graph, processing_block, nodes, host, zero_cost_run=zero_cost_run)
+        logical_graph, processing_block, nodes, host, zero_cost_run=zero_cost_run
+    )
     common.submit(physical_graph, host=host, port=port, session_id=session_id)
-    status_callback('running')
+    status_callback("running")
     common.monitor_sessions(session_id=session_id, host=host, port=port)
-    status_callback('finished')
+    status_callback("finished")
