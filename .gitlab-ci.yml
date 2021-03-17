@@ -7,9 +7,18 @@ workflow:
     - if: $CI_COMMIT_BRANCH
 
 stages:
+  - black
   - build_procfunc
   - build_workflows
   - publish
+
+black:
+  stage: black
+  image: python:latest
+  before_script:
+    - pip3 install black
+  script:
+    - black --check .
 
 pss_receive-procfunc:
   stage: build_procfunc
