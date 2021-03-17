@@ -14,6 +14,7 @@ stages:
 
 black:
   stage: black
+  image: python:latest
   before_script:
     - pip3 install black
   script:
