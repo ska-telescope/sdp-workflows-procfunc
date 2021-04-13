@@ -25,7 +25,6 @@ values = {
     "version": "latest",
     "recv_emu": "emu-recv",
     "model.name": "sim-vis.ms",
-    "reception.outputfilename": "output.ms",
     "transmission.channels_per_stream": 4,
     "transmission.rate": "147500",
     "payload.method": "icd",
@@ -36,7 +35,13 @@ values = {
     "results.push": "false",
     "pvc.name": "local-pvc",
     "pvc.path": "/mnt/data",
+    "reception.outputfilename": "output.ms",
+    "reception.receiver_port_start": "41000",
+    "reception.num_ports": 1,
 }
+
+# Default maximum number of channels per receive process
+max_channels = 20
 
 # Override the defaults with values from the PB
 if parameters:
@@ -44,22 +49,33 @@ if parameters:
         log.info("Over-riding defaults with parameters from the PB")
         values[param] = parameters.get(param)
 
+# # Port configuration
+port_start = values["reception.receiver_port_start"]
+num_ports = values["reception.num_ports"]
+
+# Get the channel link map from SBI
+scan_types = pb.get_scan_types()
+
+# Port and receive process configuration
+hosts, ports, num_process = pb.configure_port_recv_process(
+    scan_types, max_channels, port_start, num_ports
+)
+
+# Update values with number of process
+values["replicas"] = num_process
+
 # Create work phase
 log.info("Create work phase")
 work_phase = pb.create_phase("Work", [])
 
-# Assuming we are only deploying one receive processes
 with work_phase:
 
     # Deploy visibility receive
     ee_receive = work_phase.ee_deploy_helm("receive", values)
     deploy_id = ee_receive.get_id()
 
-    # Get the channel link map from SBI
-    scan_types = pb.get_scan_types()
-
     # Add receive addresses to pb
-    pb.receive_addresses(scan_types, chart_name=deploy_id)
+    pb.receive_addresses(scan_types, chart_name=deploy_id, hosts=hosts, ports=ports)
 
     log.info("Done, now idling...")
 
