@@ -57,7 +57,7 @@ num_ports = values["reception.num_ports"]
 scan_types = pb.get_scan_types()
 
 # Port and receive process configuration
-hosts, ports, num_process = pb.configure_port_recv_process(
+host_port, num_process = pb.configure_port_recv_process(
     scan_types, max_channels, port_start, num_ports
 )
 
@@ -75,7 +75,9 @@ with work_phase:
     deploy_id = ee_receive.get_id()
 
     # Add receive addresses to pb
-    pb.receive_addresses(scan_types, chart_name=deploy_id, hosts=hosts, ports=ports)
+    pb.receive_addresses(
+        scan_types, chart_name=deploy_id, configured_host_port=host_port
+    )
 
     log.info("Done, now idling...")
 
