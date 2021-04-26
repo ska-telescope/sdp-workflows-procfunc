@@ -57,7 +57,7 @@ num_ports = values["reception.num_ports"]
 scan_types = pb.get_scan_types()
 
 # Port and receive process configuration
-host_port, num_process = pb.configure_port_recv_process(
+host_port, num_process = pb.configure_recv_processes_ports(
     scan_types, max_channels, port_start, num_ports
 )
 
