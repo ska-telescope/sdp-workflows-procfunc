@@ -32,7 +32,7 @@ values = {
     "reader.start_chan": 0,
     "reader.num_chan": 0,
     "reader.num_repeats": 1,
-    "results.push": "false",
+    "results.push": False,
     "pvc.name": "local-pvc",
     "pvc.path": "/mnt/data",
     "reception.outputfilename": "output.ms",
@@ -49,7 +49,7 @@ if parameters:
         log.info("Over-riding defaults with parameters from the PB")
         values[param] = parameters.get(param)
 
-# # Port configuration
+# Port configuration
 port_start = values["reception.receiver_port_start"]
 num_ports = values["reception.num_ports"]
 
@@ -64,6 +64,39 @@ host_port, num_process = pb.configure_recv_processes_ports(
 # Update values with number of process
 values["replicas"] = num_process
 
+# Construct command list
+command = []
+
+for keys, v in values.items():
+    if keys.startswith("recv_emu"):
+        command.append(str(v))
+        command.append("-o")
+    if keys.startswith("transmission"):
+        k = str(keys) + "=" + str(v)
+        command.append(k)
+        command.append("-o")
+    if keys.startswith("reader"):
+        k = str(keys) + "=" + str(v)
+        command.append(k)
+        command.append("-o")
+    if keys.startswith("reception"):
+        if keys.endswith("outputfilename"):
+            k = str(keys) + "=" + values["pvc.path"] + "/" + str(v)
+        else:
+            k = str(keys) + "=" + str(v)
+        command.append(k)
+        command.append("-o")
+    if keys.startswith("payload"):
+        k = str(keys) + "=" + str(v)
+        command.append(k)
+        command.append("-o")
+
+data_model = (
+    str("reception.datamodel") + "=" + values["pvc.path"] + "/" + values["model.name"]
+)
+command.append(data_model)
+values["command"] = command
+
 # Create work phase
 log.info("Create work phase")
 work_phase = pb.create_phase("Work", [])
@@ -75,9 +108,7 @@ with work_phase:
     deploy_id = ee_receive.get_id()
 
     # Add receive addresses to pb
-    pb.receive_addresses(
-        scan_types, chart_name=deploy_id, configured_host_port=host_port
-    )
+    pb.receive_addresses(chart_name=deploy_id, configured_host_port=host_port)
 
     log.info("Done, now idling...")
 
