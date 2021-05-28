@@ -178,7 +178,7 @@ service/sdp-console                      ClusterIP   None             <none>    
 . and so on
 ```
 
-Now we can connect to the sdp-console pod to give us access to the sdpcfg tool which with we can start a workflow.
+Now we can connect to the sdp-console pod to give us access to the `ska-sdp` tool which with we can start a workflow.
 
 ```bash
 $ kubectl exec -it sdp-console-0 -- bash
@@ -187,7 +187,7 @@ $ kubectl exec -it sdp-console-0 -- bash
 Now let's start the pss\_receive workflow which will deploy the cheetah receiver container
 
 ```bash
-$ sdpcfg process realtime:pss_receive:0.2.0
+$ ska-sdp create pb realtime:pss_receive:0.2.0
 ```
 
 We can watch the deployment of the workflow in the sdp namespace
@@ -195,14 +195,14 @@ We can watch the deployment of the workflow in the sdp namespace
 ```bash
 $ watch -n 0.5 kubectl get all - n sdp
   NAME                                               READY   STATUS    RESTARTS   AGE
-  pod/proc-pb-sdpcfg-20210217-00003-workflow-njh8s   1/1     Running   0          21s
+  pod/proc-pb-sdpcli-20210217-00003-workflow-njh8s   1/1     Running   0          21s
   pod/pss-receive-9rsbf                              1/1     Running   0          14s
 
   NAME                  TYPE        CLUSTER-IP	  EXTERNAL-IP   PORT(S)    AGE
   service/pss-receive   ClusterIP   10.111.94.131   <none>        9021/UDP   14s
 
   NAME                                               COMPLETIONS   DURATION   AGE
-  job.batch/proc-pb-sdpcfg-20210217-00003-workflow   0/1           21s        22s
+  job.batch/proc-pb-sdpcli-20210217-00003-workflow   0/1           21s        22s
   job.batch/pss-receive                              0/1           14s        14s
 ```
 
@@ -223,7 +223,7 @@ Our sender pod "pss-pipeline" will appear in the sdp namespace
 
 ```bash
   NAME                                               READY   STATUS              RESTARTS   AGE
-  pod/proc-pb-sdpcfg-20210217-00003-workflow-njh8s   1/1     Running             0          3m9s
+  pod/proc-pb-sdpcli-20210217-00003-workflow-njh8s   1/1     Running             0          3m9s
   pod/pss-pipeline-wjdm6                             0/1     ContainerCreating   0          2s
   pod/pss-receive-9rsbf                              1/1     Running             0          3m2s
 
@@ -232,7 +232,7 @@ Our sender pod "pss-pipeline" will appear in the sdp namespace
   service/pss-receive   ClusterIP   10.111.94.131   <none>        9021/UDP   3m2s
 
   NAME                                               COMPLETIONS   DURATION   AGE
-  job.batch/proc-pb-sdpcfg-20210217-00003-workflow   0/1           3m10s      3m11s
+  job.batch/proc-pb-sdpcli-20210217-00003-workflow   0/1           3m10s      3m11s
   job.batch/pss-pipeline                             0/1           3s         3s
   job.batch/pss-receive                              0/1           3m3s       3m3s
 ```
@@ -284,24 +284,24 @@ kubectl delete service cbf-receive -n sdp
 Removing the pss\_receive workflows using the sdp-console. First get a list of entries in the configuration database.
 
 ```bash
-$ sdpcfg ls -R /
+$ ska-sdp list -a
 Keys with / prefix:
- /deploy/proc-pb-sdpcfg-20201126-00000-pss-receive
- /deploy/proc-pb-sdpcfg-20201126-00000-workflow
+ /deploy/proc-pb-sdpcli-20201126-00000-pss-receive
+ /deploy/proc-pb-sdpcli-20201126-00000-workflow
  /master
- /pb/pb-sdpcfg-20201126-00000
- /pb/pb-sdpcfg-20201126-00000/owner
- /pb/pb-sdpcfg-20201126-00000/state
+ /pb/pb-sdpcli-20201126-00000
+ /pb/pb-sdpcli-20201126-00000/owner
+ /pb/pb-sdpcli-20201126-00000/state
  /subarray/01
  /subarray/02
  /subarray/03
 ```
 
-Now remove the following entries and we'll see items disappear from the sdp namespace
+Now remove the following entries, and we'll see items disappear from the sdp namespace
 
 ```bash
-$ sdpcfg delete deploy/proc-pb-sdpcfg-20201126-00000-pss-receive
-$ sdpcfg delete /deploy/proc-pb-sdpcfg-20201126-00000-workflow
+$ ska-sdp delete deployment proc-pb-sdpcli-20201126-00000-pss-receive
+$ ska-sdp delete deployment proc-pb-sdpcli-20201126-00000-workflow
 ```
 
 Then we can disable the sdp
