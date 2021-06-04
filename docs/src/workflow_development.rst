@@ -1,7 +1,7 @@
 Workflow Development
 ====================
 
-The steps to develop and test an SDP workflow as follows:
+The steps to develop and test an SDP workflow are as follows:
 
 - Clone the ska-sdp-science-pipelines repository from GitLab and create a new branch for
   your work.
@@ -110,8 +110,10 @@ The steps to develop and test an SDP workflow as follows:
 
 - Commit the changes to your branch and push to GitLab.
 
-Additional steps to build a custom execution engine  (TODO: does this belong here or WL?)
+Additional steps to build a custom execution engine
 ---------------------------------------------------
+
+Note, this section is OUTDATED!
 
 If you want to use a custom execution engine (EE) in your workflow, the
 additional steps you need to do are:
