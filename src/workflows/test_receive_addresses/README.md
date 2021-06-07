@@ -83,12 +83,12 @@ d.AssignResources(config)
 
 You can connect to the configuration database by running the following command:
 
-``` kubectl exec -it deploy/test-sdp-prototype-console bash ``` and from there to see the full list run ```sdpcfg ls -R /```
+``` kubectl exec -it deploy/test-sdp-prototype-console bash ``` and from there to see the full list run ```ska-sdp list -a```
 
 To check if the receive addresses are updated in the processing block state correctly, run the following command:
 
 ```
-sdpcfg list values /pb/pb-mvp01-20200318-0001/state
+ska-sdp get pb pb-mvp01-20200318-0001/state
 ```
 
 and the output should look like this:
@@ -150,7 +150,7 @@ and the output should look like this:
 }
 ```
 
-To access the SBI run this ```sdpcfg list values /sb/sbi-mvp01-20200318-0001```
+To access the SBI run this ```ska-sdp get /sb/sbi-mvp01-20200318-0001```
 
 In there you should see that pb_receive_addresses is updated with the PB_ID.
 

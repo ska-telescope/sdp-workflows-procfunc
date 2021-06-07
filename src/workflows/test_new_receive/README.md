@@ -38,16 +38,16 @@ stored in another repository (https://gitlab.com/ska-telescope/sdp-helmdeploy-ch
 we will document the use of the chart here. The documentation may be replicated in other repositories.
 
 The configuration of the receive workflow is managed via adding to the configuration of the processing block.
-The processing block can be created using the `sdpcfg` utility or via the iTango interface. In this example we will assume
-`sdpcfg` is being used::
+The processing block can be created using the `ska-sdp` utility or via the iTango interface. In this example we will assume
+`ska-sdp` is being used::
 
-    > sdpcfg process realtime:test_new_receive:0.1.4
+    > ska-sdp create pb realtime:test_new_receive:0.1.4
 
-This will start up a default deployment. Without arguments this is a test deployment. If will launch a number of containers and
+This will start up a default deployment. Without arguments this is a test deployment. It will launch a number of containers and
 both a sender and receiver in the same pod. We typically use this for testing purposes. The behaviour and the chart deployed
 can be altered by adding a JSON blob to the command line, for example::
 
-    >sdpcfg process realtime:test_new_receive:0.1.4 "{ transmit.model : false, reception.ring_heaps : 133 }"
+    > ska-sdp create pb realtime:test_new_receive:0.1.4 "{ transmit.model : false, reception.ring_heaps : 133 }"
 
 In the above example you can see there are two key value pairs in the JSON blob. The first ``transmit.model : false`` tells
 the receive workflow not to start a sender/emulator container. In the future we may make this the default state. The second
@@ -76,7 +76,7 @@ can be pulled by providing a URL to a compressed tarfile of the model measuremen
 once unzipped. This should be the same as the measurement set that will be transmitted by the emulator to allow the UVW and
 timestamps to match.
 
-Once `sdpcfg` has be run with the desired configuration the receive will be running as a server inside a POD and waiting for
+Once `ska-sdp` has been run with the desired configuration, the receive will be running as a server inside a POD and waiting for
 packets from the emulator (or even the actual CBF)
 
 ### Retrieving Data from Kubernetes Deployments
@@ -92,7 +92,7 @@ options required:
 
 For example this is a workflow configuration utilising this capability::
 
-    >sdpcfg process realtime:test_new_receive:0.1.4 "{ transmit.model : false, results.push : true , rclone.configurl = 'https://www.dropbox.com/s/yqmzfs8ovtnonbe/rclone.conf?dl=1' , rclone.command = gcs:/yan-486-bucket/demo.ms }"
+    > ska-sdp create pb realtime:test_new_receive:0.1.4 "{ transmit.model : false, results.push : true , rclone.configurl = 'https://www.dropbox.com/s/yqmzfs8ovtnonbe/rclone.conf?dl=1' , rclone.command = gcs:/yan-486-bucket/demo.ms }"
 
 After the receive workflow completes the data will be synchronised with the end-point.
 
@@ -119,9 +119,9 @@ This will ensure the prototype itself is launched with the correct proxy setting
 But as you would expect this does not neccesarily pass the proxy settings on to workflows. Ih the case of the receive
 workflow.
 
-This is the equivalent ``sdpcfg`` line with the proxy information::
+This is the equivalent ``ska-sdp`` line with the proxy information::
 
-    > sdpcfg process realtime:test_new_receive:0.1.4 "{proxy.server : delphinus.atnf.csiro.au:8888 ,
+    > ska-sdp create pb realtime:test_new_receive:0.1.4 "{proxy.server : delphinus.atnf.csiro.au:8888 ,
     transmit.model : false , results.push : true ,
     rclone.configurl : 'https://www.dropbox.com/s/yqmzfs8ovtnonbe/rclone.conf?dl=1' ,
     rclone.command : gcs:/yan-483-bucket/psi-demo002.ms , reception.ring_heaps : 133 ,
