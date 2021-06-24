@@ -1,0 +1,1 @@
+.. mdinclude:: ../../../src/workflows/test_new_receive/README.md

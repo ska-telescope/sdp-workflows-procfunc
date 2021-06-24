@@ -6,9 +6,7 @@ SDP Science Pipeline Workflows
 
   workflow_development
   examples
-  vis_receive
-  pss_receive
-  batch_imaging
-  delivery
-  test_new_receive
+  existing_workflows
   test_workflows
+  troubleshooting
+  archive
