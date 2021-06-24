@@ -12,7 +12,7 @@ spec:
        restartPolicy: Never
        containers:
        - name: sps-emulator
-         image: nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:0.0.1
+         image: nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:1.0.0
          command: ["/opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/pipeline/cheetah_pipeline"]
          args: ["-s", "udp_low", "-p", "SinglePulse", "--log-level", "debug", "--config", "/opt/pss-pipeline/configurations/mvp_emulator_config.xml"]
          resources:
