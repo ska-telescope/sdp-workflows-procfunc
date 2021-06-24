@@ -40,7 +40,7 @@ For example:
 #### Creating a GCP storage bucket to receive the data
 
 The steps to create a GCP storage bucket for the delivery workflow are as
-follows. GCP has ample documentation, so each step is linked to the relevant
+follows. GCP has an ample documentation, so each step is linked to the relevant
 section:
 
 1) [Create a project](https://cloud.google.com/resource-manager/docs/creating-managing-projects).
