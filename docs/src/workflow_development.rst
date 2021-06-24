@@ -10,14 +10,16 @@ The steps to develop and test an SDP workflow are as follows:
 
   .. code-block::
 
-    $ mkdir src/workflows/<my-workflow>
-    $ cd src/workflows/<my-workflow>
+    $ mkdir src/workflows/<my_workflow>
+    $ cd src/workflows/<my_workflow>
 
-- Write the workflow script (``<my-workflow>.py``). See the existing workflows
-  for examples of how to do this. The ``test_realtime`` and ``test_batch``
-  workflows are the best place to start.
+- Write the workflow script (``<my_workflow>.py``). See the existing workflows
+  for examples of how to do this. The examples :ref:`example_realtime` (:ref:`test_realtime`)
+  and :ref:`example_batch` (:ref:`test_batch`) are the best place to start. These
+  are meant to give you a general idea of what structure batch and realtime workflows should have,
+  and help develop your own.
 
-- Create a ``requirements.txt`` file with your workflows's Python requirements,
+- Create a ``requirements.txt`` file with your workflows' Python requirements,
   e.g.
 
   .. code-block::
@@ -31,14 +33,16 @@ The steps to develop and test an SDP workflow are as follows:
 
   .. code-block::
 
-    FROM python:3.7
+    FROM python:3.9
 
     COPY requirements.txt ./
     RUN pip install -r requirements.txt
 
     WORKDIR /app
-    COPY <my-workflow>.py ./
-    ENTRYPOINT ["python", "<my-workflow>.py"]
+    COPY <my_workflow>.py ./
+    ENTRYPOINT ["python", "<my_workflow>.py"]
+
+  Use the base-image of your choice, preferably the latest numbered version of it, e.g. python:3.9.
 
 - Create a file called ``version.txt`` containing the semantic version number of
   the workflow.
@@ -57,6 +61,7 @@ The steps to develop and test an SDP workflow are as follows:
   .. code-block::
 
     $ make build
+    $ make tag_release
 
   This will add it to your local Docker daemon where it can be used for testing
   with a local deployment of the SDP.
@@ -79,11 +84,13 @@ The steps to develop and test an SDP workflow are as follows:
 
   .. code-block::
 
-    ska-sdp create workflow <type>:<name>:<version> '{"image": <docker image>}'
+    ska-sdp create workflow <type>:<name>:<version> '{"image": "<docker-image:version>"}'
+
+  or
 
   .. code-block::
 
-    ska-sdp import my-workflow.json
+    ska-sdp import some-workflows.json
 
   `<type>`: batch or realtime, depending on your workflow type
 
@@ -91,7 +98,7 @@ The steps to develop and test an SDP workflow are as follows:
 
   `<version>`: version of your workflow
 
-  `<docker image>`: docker image you just built from your workflow.
+  `<docker-image:version>`: docker image you just built from your workflow, including its version tag.
 
   Use import if you have multiple workflows to add to the dB. Example JSON file for
   importing workflows can be found at:
@@ -99,14 +106,38 @@ The steps to develop and test an SDP workflow are as follows:
 
 - Then create a processing block to run the workflow, either via the `Tango
   interface <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface>`_,
-  or by creating it directly in the config DB with `ska-sdp create pb <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#cli-to-interact-with-sdp>`_.
+  or by creating it directly in the config DB with `ska-sdp create pb <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#usage>`_.
 
 - Once happy with the workflow, add it to the GitLab CI file (``.gitlab-ci.yml``) in the root of the
-  repository. This will enable the Docker image to be built and pushed to the
-  EngageSKA repository when it is merged into the master branch.
+  repository:
+
+  .. code-block::
+
+    build-<my_workflow>:
+      extends: .docker_build_workflow
+      before_script:
+        - cd src/workflows/<my_workflow>>
+      only:
+        changes:
+          - src/workflows/<my_workflow>/*
+
+  This will enable the Docker image to be built and pushed to the
+  SKA Nexus repository when it is merged into the master branch.
 
 - Add the workflow to the workflow definition file
   ``src/workflows/workflows.json``.
+
+- Create a ``README.md`` and add the description and instructions to run your workflow.
+  Include it in the documentation:
+
+    - create a new file in ``docs/src/<my_workflow>.rst``
+    - add the following to it:
+
+    .. code-block::
+
+        .. mdinclude:: ../../src/workflows/<my_workflow>/README.md
+
+    - update ``docs/src/index.rst``
 
 - Commit the changes to your branch and push to GitLab.
 

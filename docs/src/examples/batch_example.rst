@@ -1,3 +1,5 @@
+.. _example_batch:
+
 Batch workflow
 ==============
 
