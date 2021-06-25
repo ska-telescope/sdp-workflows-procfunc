@@ -1,7 +1,7 @@
 .. _examples:
 
-Example Workflows
-=================
+Examples
+========
 
 Simple examples of realtime and batch workflows to help developing new ones.
 
