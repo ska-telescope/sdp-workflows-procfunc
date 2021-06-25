@@ -117,7 +117,8 @@ What just happened? We triggered the pss pipeline to listen for test data from a
 
 ## Deploying pss\_receive as an SDP workflow in Minikube
 
-Generalised instruction for deploying the SDP can be found at https://gitlab.com/ska-telescope/sdp-integration/-/tree/master/charts.
+Generalised instruction for deploying the SDP can be found at 
+[Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
 
 Start minikube,
 
@@ -152,7 +153,7 @@ $ watch -n 0.5 kubectl get all
 and once it's up and running it should look something like..
 
 ```bash
-Every 0.5s: kubectl get al
+Every 0.5s: kubectl get all
 
 NAME                                   READY   STATUS	   RESTARTS   AGE
 pod/databaseds-tango-base-test-0       1/1     Running     3          23h
@@ -308,5 +309,6 @@ Then we can disable the sdp
 
 ```bash
 $ helm uninstall test
-
 ```
+
+## Changelog

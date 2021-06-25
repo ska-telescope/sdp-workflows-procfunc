@@ -15,3 +15,5 @@ The sequence of actions carried out by the workflow is:
 * Sets processing block `status` to `'FINISHED'`
 
 The workflow makes no deployments.
+
+### Changelog

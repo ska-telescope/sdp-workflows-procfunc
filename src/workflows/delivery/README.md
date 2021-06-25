@@ -1,10 +1,10 @@
-### Delivery workflow
+# Delivery workflow
 
 This workflow provides a basic implementation of an SDP Delivery mechanism. It
 uploads data from SDP buffer reservations to Google Cloud Platform (GCP). It
 uses Dask as an execution engine.
 
-#### Parameters
+## Parameters
 
 The workflow parameters are:
 
@@ -37,7 +37,20 @@ For example:
 }
 ```
 
-#### Creating a GCP storage bucket to receive the data
+## Running the workflow using the `ska-sdp` CLI
+
+After [SDP is deployed](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html) 
+in Minikube, and you started the sdp-console, run:
+
+```console
+ska-sdp create pb batch:delivery:0.1.0 '<parameters-json>'
+```
+
+Replace `<parameters-json>` with the above string and the appropriate values. Once executed,
+a processing block pod will be created in the `sdp` namespace, which will run the delivery workflow.
+(See [ska-sdp CLI usage](https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#usage).)
+
+## Creating a GCP storage bucket to receive the data
 
 The steps to create a GCP storage bucket for the delivery workflow are as
 follows. GCP has an ample documentation, so each step is linked to the relevant
@@ -50,7 +63,7 @@ section:
     * The service account must have the role "Storage Object Creator".
     * Create and download a key in JSON format.
 
-#### Adding the GCP service account key as a Kubernetes secret
+## Adding the GCP service account key as a Kubernetes secret
 
 To make the service account key available to the delivery workflow, it needs to
 be uploaded to the cluster as a Kubernetes secret. The command to do this is:
@@ -86,3 +99,5 @@ Data
 ====
 service-account.json:  2382 bytes
 ```
+
+## Changelog

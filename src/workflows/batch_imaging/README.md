@@ -51,17 +51,17 @@ If using Minikube, make sure to increase the memory size (minimum 16 GB):
 minikube start --memory=16g
 ```
 
-Once the sdp-prototype is running, start a iTango shell with:
+Once the [SDP is running](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html), 
+start an [iTango shell](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface).
 
-```console
-kubectl exec -it itango-tango-base-sdp-prototype -- /venv/bin/itango3
-```
-
-First, obtain a handle to a subarray device with:
+First, obtain a handle to a subarray device and turn it on:
 
 ```python
 d = DeviceProxy('mid_sdp/elt/subarray_1')
+d.On()
 ```
+
+If you are not sure what devices are available, list them with `lsdev`.
 
 Create a configuration string for the scheduling block instance. This contains
 one real-time processing block, which uses the `test_realtime` workflow as a
@@ -176,3 +176,5 @@ first to gain access to the files:
 ```console
 minikube ssh
 ```
+
+## Changelog

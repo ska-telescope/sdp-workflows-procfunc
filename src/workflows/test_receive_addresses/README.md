@@ -14,24 +14,18 @@ AssignResources.
 
 ### Testing
 
-Start the sdp prototype with (Helm 3 syntax):
+[Deploy SDP](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html) 
+and make sure the [iTango console](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface) 
+pod is also running.
 
-```bash
-helm install test sdp-prototype
-```
-
-Once all the pods are running, connect to the Tango interface using the following command:
-
-```
-kubectl exec -it itango-tango-base-test /venv/bin/itango3
-```
-
-Obtain a handle to the device with:
+After entering the iTango pod, obtain a handle to a subarray device and turn it on:
 
 ```
 d = DeviceProxy('mid_sdp/elt/subarray_1')
+d.On()
 ```
 
+If you are not sure what devices are available, list them with `lsdev`.
 
 Here is the configuration string for the scheduling block instance:
 
@@ -83,7 +77,15 @@ d.AssignResources(config)
 
 You can connect to the configuration database by running the following command:
 
-``` kubectl exec -it deploy/test-sdp-prototype-console bash ``` and from there to see the full list run ```ska-sdp list -a```
+```
+kubectl exec -it sdp-console-0 -- bash
+``` 
+
+and from there to see the full list of entries, run 
+
+```
+ska-sdp list -a
+```
 
 To check if the receive addresses are updated in the processing block state correctly, run the following command:
 
@@ -150,7 +152,11 @@ and the output should look like this:
 }
 ```
 
-To access the SBI run this ```ska-sdp get /sb/sbi-mvp01-20200318-0001```
+To access the SBI run this 
+
+```
+ska-sdp get /sb/sbi-mvp01-20200318-0001
+```
 
 In there you should see that pb_receive_addresses is updated with the PB_ID.
 
@@ -160,3 +166,5 @@ and that can be verified by running d.receiveAddresses and the output should loo
 ```
 Out[4]: '{"calibration_B": {"host": [[0, "192.168.0.1"], [2000, "192.168.0.1"]], "port": [[0, 9000, 1], [2000, 9000, 1]]}, "science_A": {"host": [[0, "192.168.0.1"], [2000, "192.168.0.1"]], "port": [[0, 9000, 1], [2000, 9000, 1]]}}'
 ```
+
+### Changelog
