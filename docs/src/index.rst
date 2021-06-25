@@ -6,7 +6,7 @@ SDP Science Pipeline Workflows
 
   workflow_development
   examples
-  existing_workflows
+  workflows
   test_workflows
   troubleshooting
   archive
