@@ -81,13 +81,13 @@ The steps to develop and test an SDP workflow are as follows:
   tag the new workflow accordingly.
 
 - `Deploy SDP locally <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html>`_
-  and `start the console pod <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#connecting-to-the-configuration-database>`_.
+  and `start a shell in the console pod <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#connecting-to-the-configuration-database>`_.
 
 - Create or import the new workflow into the Configuration DB:
 
   .. code-block::
 
-    ska-sdp create workflow <type>:<name>:<version> '{"image": "<docker-image:version>"}'
+    ska-sdp create workflow <kind>:<name>:<version> '{"image": "<docker-image:version>"}'
 
   or
 
@@ -95,7 +95,7 @@ The steps to develop and test an SDP workflow are as follows:
 
     ska-sdp import some-workflows.json
 
-  `<type>`: batch or realtime, depending on your workflow type
+  `<kind>`: batch or realtime, depending on your workflow type
 
   `<name>`: name of your workflow
 
