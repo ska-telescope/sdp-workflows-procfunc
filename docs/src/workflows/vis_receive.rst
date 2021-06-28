@@ -1,1 +1,1 @@
-.. mdinclude:: ../../../src/procfunc/vis_receive/README.md
+.. mdinclude:: ../../../src/workflows/vis_receive/README.md
