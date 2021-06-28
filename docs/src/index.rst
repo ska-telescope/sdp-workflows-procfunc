@@ -5,19 +5,8 @@ SDP Science Pipeline Workflows
   :maxdepth: 1
 
   workflow_development
-  vis_receive
-  pss_receive
-  batch_imaging
-  delivery
-  test_new_receive
+  examples
+  workflows
   test_workflows
-
-
-Indices and tables
-------------------
-
-- :ref:`genindex`
-- :ref:`modindex`
-- :ref:`search`
-
-
+  troubleshooting
+  archive
