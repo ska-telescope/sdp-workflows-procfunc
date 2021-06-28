@@ -57,17 +57,21 @@ config = '''
   "processing_blocks": [
     {
       "id": "pb-mvp01-20200318-0001",
-      "workflow": {"type": "realtime", "id": "test_receive_addresses", "version": "0.3.2"},
+      "workflow": {"type": "realtime", "id": "test_receive_addresses", "version": "0.3.4"},
       "parameters": {}
     },
     {
       "id": "pb-mvp01-20200318-0002",
-      "workflow": {"type": "realtime", "id": "test_realtime", "version": "0.2.0"},
+      "workflow": {"type": "realtime", "id": "test_realtime", "version": "0.2.2"},
       "parameters": {}
     }
   ]
 } '''
 ```
+
+Note that each workflow may come with multiple versions. Always use the latest number,
+unless you know a specific version that suits your needs. (The Changelog
+at the end of this page may help to decide.)
 
 Start the scheduling block instance by the AssignResources command:
 

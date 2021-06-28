@@ -55,6 +55,10 @@ timestamps to match.
 Once `ska-sdp` has been run with the desired configuration, the receive will be running as a server inside a pod and waiting for
 packets from the emulator (or even the actual CBF).
 
+Note that each workflow may come with multiple versions. Always use the latest number,
+unless you know a specific version that suits your needs, or you follow the example above. (The Changelog
+at the end of this page may help to decide.)
+
 ### Retrieving Data from Kubernetes Deployments
 
 If the receive workflow is configured to generate a measurement set, then it needs to be exported from the Kubernetes environment.

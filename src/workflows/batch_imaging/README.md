@@ -43,7 +43,7 @@ For example:
 }
 ```
 
-## Running the workflow
+## Running the workflow using iTango
 
 If using Minikube, make sure to increase the memory size (minimum 16 GB):
 
@@ -84,12 +84,12 @@ config_sbi = '''
   "processing_blocks": [
     {
       "id": "pb-mvp01-20200523-00000",
-      "workflow": {"type": "realtime", "id": "test_realtime", "version": "0.2.0"},
+      "workflow": {"type": "realtime", "id": "test_realtime", "version": "0.2.2"},
       "parameters": {}
     },
     {
       "id": "pb-mvp01-20200523-00001",
-      "workflow": {"type": "batch", "id": "batch_imaging", "version": "0.1.0"},
+      "workflow": {"type": "batch", "id": "batch_imaging", "version": "0.1.1"},
       "parameters": {
         "n_workers": 4,
         "freq_min": 0.9e8,
@@ -111,25 +111,28 @@ config_sbi = '''
 '''
 ```
 
+Note that each workflow may come with multiple versions. Always use the latest number,
+unless you know a specific version that suits your needs. (The Changelog
+at the end of this page may help to decide.)
+
 The scheduling block instance is created by the `AssignResources` command:
 
 ```python
 d.AssignResources(config_sbi)
 ```
 
-You can run the subarray commands as normal, but the batch processing does not
-start until you end the real-time processing with the `ReleaseResources`
-command:
+In order for the batch processing to start, you need to end the real-time processing 
+with the `ReleaseResources` command:
 
 ```python
 d.ReleaseResources()
 ```
 
-You can watch the pods and persistent volume clams (for the buffer reservations)
-being deployed with:
+You can watch the pods and persistent volume claims (for the buffer reservations)
+being deployed with the following command or using [k9s](https://k9scli.io/):
 
 ```console
-watch kubectl get pod,pvc -n sdp
+kubectl -w get pod,pvc -n sdp
 ```
 
 At this stage you should see a pod called
@@ -176,5 +179,32 @@ first to gain access to the files:
 ```console
 minikube ssh
 ```
+
+## Running the workflow using the SDP CLI
+
+Deploy SDP and start the console as described at 
+[Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
+
+You may also run this workflow directly from the console using the 
+[`ska-sdp` CLI](https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html).
+
+Run the workflow:
+
+```console
+ska-sdp create pb batch:batch_imaging:0.1.1
+```
+
+If you want to change the default parameters, you can run instead as follows (update the JSON string as needed):
+
+```console
+ska-sdp create pb batch:batch_imaging:0.1.1 '{"n_workers": 4, "freq_min": 0.9e8, "freq_max": 1.1e8}'
+```
+
+You can watch the pod being created as before either using 
+```console
+kubectl -w get pods -n sdp
+```
+or [k9s](https://k9scli.io/). To access the data created by the workflow, follow the steps above at 
+"Accessing the data" in the "Running the workflow using iTango" section.
 
 ## Changelog

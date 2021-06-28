@@ -50,6 +50,10 @@ Replace `<parameters-json>` with the above string and the appropriate values. On
 a processing block pod will be created in the `sdp` namespace, which will run the delivery workflow.
 (See [ska-sdp CLI usage](https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#usage).)
 
+Note that each workflow may come with multiple versions. Always use the latest number,
+unless you know a specific version that suits your needs. (The Changelog
+at the end of this page may help to decide.)
+
 ## Creating a GCP storage bucket to receive the data
 
 The steps to create a GCP storage bucket for the delivery workflow are as
