@@ -53,90 +53,90 @@ pages:
 build-batch_imaging:
   extends: .docker_build_workflow
   before_script:
-     - cd src/workflows/batch_imaging
+     - cd src/batch_imaging
   only:
     changes:
-      - src/workflows/batch_imaging/*
+      - src/batch_imaging/*
 
 build-delivery:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/delivery
+    - cd src/delivery
   only:
     changes:
-      - src/workflows/delivery/*
+      - src/delivery/*
 
 build-plasma_pipeline:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/plasma_pipeline
+    - cd src/plasma_pipeline
   only:
     changes:
-      - src/workflows/plasma_pipeline/*
+      - src/plasma_pipeline/*
 
 build-pss_receive:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/pss_receive
+    - cd src/pss_receive
   only:
     changes:
-      - src/workflows/pss_receive/*
+      - src/pss_receive/*
 
 build-test_batch:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/test_batch
+    - cd src/test_batch
   only:
     changes:
-      - src/workflows/test_batch/*
+      - src/test_batch/*
 
 build-test_daliuge:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/test_daliuge
+    - cd src/test_daliuge
   only:
     changes:
-      - src/workflows/test_daliuge/*
+      - src/test_daliuge/*
 
 build-test_dask:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/test_dask
+    - cd src/test_dask
   only:
     changes:
-      - src/workflows/test_dask/*
+      - src/test_dask/*
 
 build-test_new_receive:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/test_new_receive
+    - cd src/test_new_receive
   only:
     changes:
-      - src/workflows/test_new_receive/*
+      - src/test_new_receive/*
 
 build-test_realtime:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/test_realtime
+    - cd src/test_realtime
   only:
     changes:
-      - src/workflows/test_realtime/*
+      - src/test_realtime/*
 
 build-test_receive_addresses:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/test_receive_addresses
+    - cd src/test_receive_addresses
   only:
     changes:
-      - src/workflows/test_receive_addresses/*
+      - src/test_receive_addresses/*
 
 build-vis_receive:
   extends: .docker_build_workflow
   before_script:
-    - cd src/workflows/vis_receive
+    - cd src/vis_receive
   only:
     changes:
-      - src/workflows/vis_receive/*
+      - src/vis_receive/*
 
 .publish:
   stage: publish
@@ -152,112 +152,112 @@ build-vis_receive:
 publish-batch_imaging:
   extends: .publish
   before_script:
-    - cd src/workflows/batch_imaging
+    - cd src/batch_imaging
   only:
     refs:
       - master
     changes:
-      - src/workflows/batch_imaging/*
+      - src/batch_imaging/*
 
 publish-delivery:
   extends: .publish
   before_script:
-    - cd src/workflows/delivery
+    - cd src/delivery
   only:
     refs:
       - master
     changes:
-      - src/workflows/delivery/*
+      - src/delivery/*
 
 publish-plasma_pipeline:
   extends: .publish
   before_script:
-    - cd src/workflows/plasma_pipeline
+    - cd src/plasma_pipeline
   only:
     refs:
       - master
     changes:
-      - src/workflows/plasma_pipeline/*
+      - src/plasma_pipeline/*
 
 publish-pss_receive:
   extends: .publish
   before_script:
-    - cd src/workflows/pss_receive
+    - cd src/pss_receive
   only:
     refs:
       - master
     changes:
-      - src/workflows/pss_receive/*
+      - src/pss_receive/*
 
 publish-test_batch:
   extends: .publish
   before_script:
-    - cd src/workflows/test_batch
+    - cd src/test_batch
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_batch/*
+      - src/test_batch/*
 
 publish-test_daliuge:
   extends: .publish
   before_script:
-    - cd src/workflows/test_daligue
+    - cd src/test_daligue
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_daliuge/*
+      - src/test_daliuge/*
 
 publish-test_dask:
   extends: .publish
   before_script:
-    - cd src/workflows/test_dask
+    - cd src/test_dask
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_dask/*
+      - src/test_dask/*
 
 publish-test_new_receive:
   extends: .publish
   before_script:
-    - cd src/workflows/test_new_receive
+    - cd src/test_new_receive
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_new_receive/*
+      - src/test_new_receive/*
 
 publish-test_realtime:
   extends: .publish
   before_script:
-    - cd src/workflows/test_realtime
+    - cd src/test_realtime
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_realtime/*
+      - src/test_realtime/*
 
 publish-test_receive_addresses:
   extends: .publish
   before_script:
-    - cd src/workflows/test_receive_addresses
+    - cd src/test_receive_addresses
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_receive_addresses/*
+      - src/test_receive_addresses/*
 
 publish-vis_receive:
   extends: .publish
   before_script:
-    - cd src/workflows/vis_receive
+    - cd src/vis_receive
   only:
     refs:
       - master
     changes:
-      - src/workflows/vis_receive/*
+      - src/vis_receive/*
 
 # Create Gitlab CI badges from CI metrics
 # https://developer.skatelescope.org/en/latest/tools/continuousintegration.html#automated-collection-of-ci-health-metrics-as-part-of-the-ci-pipeline

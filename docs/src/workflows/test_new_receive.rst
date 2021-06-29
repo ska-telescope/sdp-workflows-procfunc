@@ -1,1 +1,1 @@
-.. mdinclude:: ../../../src/workflows/test_new_receive/README.md
+.. mdinclude:: ../../../src/test_new_receive/README.md

@@ -1,1 +1,1 @@
-.. mdinclude:: ../../../src/workflows/test_daliuge/README.md
+.. mdinclude:: ../../../src/test_daliuge/README.md

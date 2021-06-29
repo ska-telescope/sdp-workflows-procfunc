@@ -1,1 +1,1 @@
-.. mdinclude:: ../../../src/workflows/vis_receive/README.md
+.. mdinclude:: ../../../src/vis_receive/README.md
