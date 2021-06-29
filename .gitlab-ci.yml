@@ -8,7 +8,7 @@ workflow:
 
 stages:
   - black
-  - build_docs
+  - docs
   - build_workflows
   - publish
 
@@ -20,23 +20,17 @@ black:
   script:
     - black --check .
 
-# "pages" is a special job that is used to upload static content to GitLab
-# that can be used to serve a website (i.e. docs for ska-sim-low) (taken from
-# https://gitlab.com/ska-telescope/developer.skatelescope.org/-/blob/master/.gitlab-ci.yml)
-pages:
-  stage: build_docs
+docs:
+  stage: docs
   image: python:latest
-  script:
-    - pip3 install --upgrade pip
+  before_script:
     - pip install -r docs/requirements.txt
-    - make -C docs html
-    # for some reason, after the above command, make leaves the working directory
-    # so in the next cp command we need to specify the full path
-    - mkdir -p public
-    - cp -r /builds/ska-telescope/sdp/ska-sdp-science-pipelines/docs/build/html/* public
+  script:
+    - cd docs
+    - make html
   artifacts:
-    paths:  # for this stage to work with "pages", data have to be in "public"
-      - public
+    paths:
+      - docs/build/html
     expire_in: 1 week
 
 .docker_build_workflow:
