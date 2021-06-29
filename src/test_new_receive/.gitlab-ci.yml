@@ -7,7 +7,7 @@
 build:new_receive_workflow_build:
   extends: .build_docker
   variables:
-    BUILD_PATH: src/workflows/test_new_receive/
+    BUILD_PATH: src/test_new_receive/
 
 # ============================================================================
 # Tag and publish Docker image (master only)
@@ -18,4 +18,4 @@ publish:new_receive_workflow_deploy:
   dependencies:
     - build:new_receive_workflow_build
   variables:
-    BUILD_PATH: src/workflows/test_new_receive/
+    BUILD_PATH: src/test_new_receive/

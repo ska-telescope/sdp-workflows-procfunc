@@ -231,7 +231,7 @@ $ kubectl logs pss-receive-9rsbf -n sdp
 
 and we have a service waiting to route data sent to the hostname pss-receive to this pod. 
 Now to send this some data we can use the pss-pipeline kubernetes manifest, 
-[deploy-sender.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/workflows/pss_receive/deploy-sender.yaml). 
+[deploy-sender.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/pss_receive/deploy-sender.yaml). 
 This will deploy cheetah as a new pod. It will wait for data to arrive from the CBF emulator 
 (which we'll deploy shortly) and when it arrives will run the single pulse emulator pipeline and export the 
 candidate to the pss-receive application.
@@ -274,7 +274,7 @@ $ kubectl logs pss-pipeline-wjdm6 -n sdp
 ```
 
 Now we can deploy the CBF emulator to stream UDP time frequency data using the pss_receive:0.2.1
-[deploy-cbf-emulator.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/workflows/pss_receive/deploy-cbf-emulator.yaml):
+[deploy-cbf-emulator.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/pss_receive/deploy-cbf-emulator.yaml):
 
 ```bash
 $ kubectl apply -f deploy-cbf-emulator.yaml -n sdp

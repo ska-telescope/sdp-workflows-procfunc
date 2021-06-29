@@ -6,12 +6,12 @@ The steps to develop and test an SDP workflow are as follows:
 - Clone the ska-sdp-science-pipelines repository from GitLab and create a new branch for
   your work.
 
-- Create a directory for your workflow in ``src/workflows``:
+- Create a directory for your workflow in ``src``:
 
   .. code-block::
 
-    $ mkdir src/workflows/<my_workflow>
-    $ cd src/workflows/<my_workflow>
+    $ mkdir src/<my_workflow>
+    $ cd src/<my_workflow>
 
 - Write the workflow script (``<my_workflow>.py``). See the existing workflows
   for examples of how to do this. The examples :ref:`example_realtime` (:ref:`test_realtime`)
@@ -119,16 +119,16 @@ The steps to develop and test an SDP workflow are as follows:
     build-<my_workflow>:
       extends: .docker_build_workflow
       before_script:
-        - cd src/workflows/<my_workflow>>
+        - cd src/<my_workflow>>
       only:
         changes:
-          - src/workflows/<my_workflow>/*
+          - src/<my_workflow>/*
 
   This will enable the Docker image to be built and pushed to the
   SKA Nexus repository when it is merged into the master branch.
 
 - Add the workflow to the workflow definition file
-  ``src/workflows/workflows.json``.
+  ``workflows.json``.
 
 - Create a ``README.md`` and add the description and instructions to run your workflow.
   Include it in the documentation:
@@ -138,7 +138,7 @@ The steps to develop and test an SDP workflow are as follows:
 
     .. code-block::
 
-        .. mdinclude:: ../../src/workflows/<my_workflow>/README.md
+        .. mdinclude:: ../../src/<my_workflow>/README.md
 
     - update ``docs/src/index.rst``
 
