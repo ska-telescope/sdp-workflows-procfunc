@@ -9,16 +9,20 @@ workflow:
 stages:
   - black
   - docs
-  - build_workflows
+  - build
   - publish
+
+# Check black formatting of code
 
 black:
   stage: black
   image: python:latest
   before_script:
-    - pip3 install black
+    - pip install black
   script:
     - black --check .
+
+# Build documentation
 
 docs:
   stage: docs
@@ -33,8 +37,10 @@ docs:
       - docs/build/html
     expire_in: 1 week
 
-.docker_build_workflow:
-  stage: build_workflows
+# Templates for build and publish jobs
+
+.build:
+  stage: build
   image: docker:stable
   services:
     - docker:dind
@@ -43,94 +49,6 @@ docs:
     - make build PREFIX_BUILD=${CI_REGISTRY_IMAGE}
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - make push PREFIX_BUILD=${CI_REGISTRY_IMAGE}
-
-build-batch_imaging:
-  extends: .docker_build_workflow
-  before_script:
-     - cd src/batch_imaging
-  only:
-    changes:
-      - src/batch_imaging/*
-
-build-delivery:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/delivery
-  only:
-    changes:
-      - src/delivery/*
-
-build-plasma_pipeline:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/plasma_pipeline
-  only:
-    changes:
-      - src/plasma_pipeline/*
-
-build-pss_receive:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/pss_receive
-  only:
-    changes:
-      - src/pss_receive/*
-
-build-test_batch:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/test_batch
-  only:
-    changes:
-      - src/test_batch/*
-
-build-test_daliuge:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/test_daliuge
-  only:
-    changes:
-      - src/test_daliuge/*
-
-build-test_dask:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/test_dask
-  only:
-    changes:
-      - src/test_dask/*
-
-build-test_new_receive:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/test_new_receive
-  only:
-    changes:
-      - src/test_new_receive/*
-
-build-test_realtime:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/test_realtime
-  only:
-    changes:
-      - src/test_realtime/*
-
-build-test_receive_addresses:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/test_receive_addresses
-  only:
-    changes:
-      - src/test_receive_addresses/*
-
-build-vis_receive:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/vis_receive
-  only:
-    changes:
-      - src/vis_receive/*
 
 .publish:
   stage: publish
@@ -143,6 +61,18 @@ build-vis_receive:
     - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
     - make push_release PREFIX_BUILD=${CI_REGISTRY_IMAGE} || true
 
+# Build and publish jobs for each workflow
+
+# batch_imaging
+
+build-batch_imaging:
+  extends: .build
+  before_script:
+     - cd src/batch_imaging
+  only:
+    changes:
+      - src/batch_imaging/*
+
 publish-batch_imaging:
   extends: .publish
   before_script:
@@ -152,6 +82,16 @@ publish-batch_imaging:
       - master
     changes:
       - src/batch_imaging/*
+
+# delivery
+
+build-delivery:
+  extends: .build
+  before_script:
+    - cd src/delivery
+  only:
+    changes:
+      - src/delivery/*
 
 publish-delivery:
   extends: .publish
@@ -163,6 +103,16 @@ publish-delivery:
     changes:
       - src/delivery/*
 
+# plasma_pipeline
+
+build-plasma_pipeline:
+  extends: .build
+  before_script:
+    - cd src/plasma_pipeline
+  only:
+    changes:
+      - src/plasma_pipeline/*
+
 publish-plasma_pipeline:
   extends: .publish
   before_script:
@@ -172,6 +122,16 @@ publish-plasma_pipeline:
       - master
     changes:
       - src/plasma_pipeline/*
+
+# pss_receive
+
+build-pss_receive:
+  extends: .build
+  before_script:
+    - cd src/pss_receive
+  only:
+    changes:
+      - src/pss_receive/*
 
 publish-pss_receive:
   extends: .publish
@@ -183,6 +143,16 @@ publish-pss_receive:
     changes:
       - src/pss_receive/*
 
+# test_batch
+
+build-test_batch:
+  extends: .build
+  before_script:
+    - cd src/test_batch
+  only:
+    changes:
+      - src/test_batch/*
+
 publish-test_batch:
   extends: .publish
   before_script:
@@ -192,6 +162,16 @@ publish-test_batch:
       - master
     changes:
       - src/test_batch/*
+
+# test_daliuge
+
+build-test_daliuge:
+  extends: .build
+  before_script:
+    - cd src/test_daliuge
+  only:
+    changes:
+      - src/test_daliuge/*
 
 publish-test_daliuge:
   extends: .publish
@@ -203,6 +183,16 @@ publish-test_daliuge:
     changes:
       - src/test_daliuge/*
 
+# test_dask
+
+build-test_dask:
+  extends: .build
+  before_script:
+    - cd src/test_dask
+  only:
+    changes:
+      - src/test_dask/*
+
 publish-test_dask:
   extends: .publish
   before_script:
@@ -212,6 +202,16 @@ publish-test_dask:
       - master
     changes:
       - src/test_dask/*
+
+# test_new_receive
+
+build-test_new_receive:
+  extends: .build
+  before_script:
+    - cd src/test_new_receive
+  only:
+    changes:
+      - src/test_new_receive/*
 
 publish-test_new_receive:
   extends: .publish
@@ -223,6 +223,16 @@ publish-test_new_receive:
     changes:
       - src/test_new_receive/*
 
+# test_realtime
+
+build-test_realtime:
+  extends: .build
+  before_script:
+    - cd src/test_realtime
+  only:
+    changes:
+      - src/test_realtime/*
+
 publish-test_realtime:
   extends: .publish
   before_script:
@@ -233,6 +243,16 @@ publish-test_realtime:
     changes:
       - src/test_realtime/*
 
+# test_receive_addresses
+
+build-test_receive_addresses:
+  extends: .build
+  before_script:
+    - cd src/test_receive_addresses
+  only:
+    changes:
+      - src/test_receive_addresses/*
+
 publish-test_receive_addresses:
   extends: .publish
   before_script:
@@ -242,6 +262,16 @@ publish-test_receive_addresses:
       - master
     changes:
       - src/test_receive_addresses/*
+
+# vis_receive
+
+build-vis_receive:
+  extends: .build
+  before_script:
+    - cd src/vis_receive
+  only:
+    changes:
+      - src/vis_receive/*
 
 publish-vis_receive:
   extends: .publish
