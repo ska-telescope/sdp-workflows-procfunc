@@ -1,1 +1,1 @@
-.. mdinclude:: ../../../src/workflows/test_dask/README.md
+.. mdinclude:: ../../../src/test_dask/README.md

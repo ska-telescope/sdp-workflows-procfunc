@@ -8,75 +8,39 @@ workflow:
 
 stages:
   - black
-  - build_docs
-  - build_procfunc
-  - build_workflows
+  - docs
+  - build
   - publish
+
+# Check black formatting of code
 
 black:
   stage: black
   image: python:latest
   before_script:
-    - pip3 install black
+    - pip install black
   script:
     - black --check .
 
-# "pages" is a special job that is used to upload static content to GitLab
-# that can be used to serve a website (i.e. docs for ska-sim-low) (taken from
-# https://gitlab.com/ska-telescope/developer.skatelescope.org/-/blob/master/.gitlab-ci.yml)
-pages:
-  stage: build_docs
+# Build documentation
+
+docs:
+  stage: docs
   image: python:latest
-  script:
-    - pip3 install --upgrade pip
+  before_script:
     - pip install -r docs/requirements.txt
-    - make -C docs html
-    # for some reason, after the above command, make leaves the working directory
-    # so in the next cp command we need to specify the full path
-    - mkdir -p public
-    - cp -r /builds/ska-telescope/sdp/ska-sdp-science-pipelines/docs/build/html/* public
+  script:
+    - cd docs
+    - make html
   artifacts:
-    paths:  # for this stage to work with "pages", data have to be in "public"
-      - public
+    paths:
+      - docs/build/html
     expire_in: 1 week
 
-pss_receive-procfunc:
-  stage: build_procfunc
-  image: docker:stable
-  services:
-    - docker:dind
-  script:
-    - apk add make
-    - cd src/procfunc/pss_receive/pss-receive
-    - make build
-    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-    - make push
-  only:
-    refs:
-      - master
-    changes:
-      - src/procfunc/pss_receive/pss-receive
+# Templates for build and publish jobs
 
-vis_receive-procfunc:
-  stage: build_procfunc
-  image: docker:stable
-  services:
-    - docker:dind
-  script:
-    - apk add make
-    - cd src/procfunc/vis_receive
-    - make build DOCKER_REGISTRY_USER=sdp-prototype
-    - docker image ls
-    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-    - make push DOCKER_REGISTRY_USER=sdp-prototype
-  only:
-    refs:
-      - master
-    changes:
-      - src/procfunc/vis_receive
-
-.docker_build_workflow:
-  stage: build_workflows
+.build:
+  stage: build
   image: docker:stable
   services:
     - docker:dind
@@ -85,94 +49,6 @@ vis_receive-procfunc:
     - make build PREFIX_BUILD=${CI_REGISTRY_IMAGE}
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - make push PREFIX_BUILD=${CI_REGISTRY_IMAGE}
-
-build-batch_imaging:
-  extends: .docker_build_workflow
-  before_script:
-     - cd src/workflows/batch_imaging
-  only:
-    changes:
-      - src/workflows/batch_imaging/*
-
-build-delivery:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/delivery
-  only:
-    changes:
-      - src/workflows/delivery/*
-
-build-plasma_pipeline:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/plasma_pipeline
-  only:
-    changes:
-      - src/workflows/plasma_pipeline/*
-
-build-pss_receive:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/pss_receive
-  only:
-    changes:
-      - src/workflows/pss_receive/*
-
-build-test_batch:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/test_batch
-  only:
-    changes:
-      - src/workflows/test_batch/*
-
-build-test_daliuge:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/test_daliuge
-  only:
-    changes:
-      - src/workflows/test_daliuge/*
-
-build-test_dask:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/test_dask
-  only:
-    changes:
-      - src/workflows/test_dask/*
-
-build-test_new_receive:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/test_new_receive
-  only:
-    changes:
-      - src/workflows/test_new_receive/*
-
-build-test_realtime:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/test_realtime
-  only:
-    changes:
-      - src/workflows/test_realtime/*
-
-build-test_receive_addresses:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/test_receive_addresses
-  only:
-    changes:
-      - src/workflows/test_receive_addresses/*
-
-build-vis_receive:
-  extends: .docker_build_workflow
-  before_script:
-    - cd src/workflows/vis_receive
-  only:
-    changes:
-      - src/workflows/vis_receive/*
 
 .publish:
   stage: publish
@@ -185,115 +61,227 @@ build-vis_receive:
     - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
     - make push_release PREFIX_BUILD=${CI_REGISTRY_IMAGE} || true
 
+# Build and publish jobs for each workflow
+
+# batch_imaging
+
+build-batch_imaging:
+  extends: .build
+  before_script:
+     - cd src/batch_imaging
+  only:
+    changes:
+      - src/batch_imaging/*
+
 publish-batch_imaging:
   extends: .publish
   before_script:
-    - cd src/workflows/batch_imaging
+    - cd src/batch_imaging
   only:
     refs:
       - master
     changes:
-      - src/workflows/batch_imaging/*
+      - src/batch_imaging/*
+
+# delivery
+
+build-delivery:
+  extends: .build
+  before_script:
+    - cd src/delivery
+  only:
+    changes:
+      - src/delivery/*
 
 publish-delivery:
   extends: .publish
   before_script:
-    - cd src/workflows/delivery
+    - cd src/delivery
   only:
     refs:
       - master
     changes:
-      - src/workflows/delivery/*
+      - src/delivery/*
+
+# plasma_pipeline
+
+build-plasma_pipeline:
+  extends: .build
+  before_script:
+    - cd src/plasma_pipeline
+  only:
+    changes:
+      - src/plasma_pipeline/*
 
 publish-plasma_pipeline:
   extends: .publish
   before_script:
-    - cd src/workflows/plasma_pipeline
+    - cd src/plasma_pipeline
   only:
     refs:
       - master
     changes:
-      - src/workflows/plasma_pipeline/*
+      - src/plasma_pipeline/*
+
+# pss_receive
+
+build-pss_receive:
+  extends: .build
+  before_script:
+    - cd src/pss_receive
+  only:
+    changes:
+      - src/pss_receive/*
 
 publish-pss_receive:
   extends: .publish
   before_script:
-    - cd src/workflows/pss_receive
+    - cd src/pss_receive
   only:
     refs:
       - master
     changes:
-      - src/workflows/pss_receive/*
+      - src/pss_receive/*
+
+# test_batch
+
+build-test_batch:
+  extends: .build
+  before_script:
+    - cd src/test_batch
+  only:
+    changes:
+      - src/test_batch/*
 
 publish-test_batch:
   extends: .publish
   before_script:
-    - cd src/workflows/test_batch
+    - cd src/test_batch
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_batch/*
+      - src/test_batch/*
+
+# test_daliuge
+
+build-test_daliuge:
+  extends: .build
+  before_script:
+    - cd src/test_daliuge
+  only:
+    changes:
+      - src/test_daliuge/*
 
 publish-test_daliuge:
   extends: .publish
   before_script:
-    - cd src/workflows/test_daligue
+    - cd src/test_daligue
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_daliuge/*
+      - src/test_daliuge/*
+
+# test_dask
+
+build-test_dask:
+  extends: .build
+  before_script:
+    - cd src/test_dask
+  only:
+    changes:
+      - src/test_dask/*
 
 publish-test_dask:
   extends: .publish
   before_script:
-    - cd src/workflows/test_dask
+    - cd src/test_dask
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_dask/*
+      - src/test_dask/*
+
+# test_new_receive
+
+build-test_new_receive:
+  extends: .build
+  before_script:
+    - cd src/test_new_receive
+  only:
+    changes:
+      - src/test_new_receive/*
 
 publish-test_new_receive:
   extends: .publish
   before_script:
-    - cd src/workflows/test_new_receive
+    - cd src/test_new_receive
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_new_receive/*
+      - src/test_new_receive/*
+
+# test_realtime
+
+build-test_realtime:
+  extends: .build
+  before_script:
+    - cd src/test_realtime
+  only:
+    changes:
+      - src/test_realtime/*
 
 publish-test_realtime:
   extends: .publish
   before_script:
-    - cd src/workflows/test_realtime
+    - cd src/test_realtime
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_realtime/*
+      - src/test_realtime/*
+
+# test_receive_addresses
+
+build-test_receive_addresses:
+  extends: .build
+  before_script:
+    - cd src/test_receive_addresses
+  only:
+    changes:
+      - src/test_receive_addresses/*
 
 publish-test_receive_addresses:
   extends: .publish
   before_script:
-    - cd src/workflows/test_receive_addresses
+    - cd src/test_receive_addresses
   only:
     refs:
       - master
     changes:
-      - src/workflows/test_receive_addresses/*
+      - src/test_receive_addresses/*
+
+# vis_receive
+
+build-vis_receive:
+  extends: .build
+  before_script:
+    - cd src/vis_receive
+  only:
+    changes:
+      - src/vis_receive/*
 
 publish-vis_receive:
   extends: .publish
   before_script:
-    - cd src/workflows/vis_receive
+    - cd src/vis_receive
   only:
     refs:
       - master
     changes:
-      - src/workflows/vis_receive/*
+      - src/vis_receive/*
 
 # Create Gitlab CI badges from CI metrics
 # https://developer.skatelescope.org/en/latest/tools/continuousintegration.html#automated-collection-of-ci-health-metrics-as-part-of-the-ci-pipeline

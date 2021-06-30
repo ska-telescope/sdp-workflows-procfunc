@@ -1,3 +1,3 @@
 .. _test_realtime:
 
-.. mdinclude:: ../../../src/workflows/test_realtime/README.md
+.. mdinclude:: ../../../src/test_realtime/README.md

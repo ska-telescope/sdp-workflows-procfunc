@@ -1,1 +1,1 @@
-.. mdinclude:: ../../../src/workflows/batch_imaging/README.md
+.. mdinclude:: ../../../src/batch_imaging/README.md

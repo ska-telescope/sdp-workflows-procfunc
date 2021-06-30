@@ -6,12 +6,12 @@ The steps to develop and test an SDP workflow are as follows:
 - Clone the ska-sdp-science-pipelines repository from GitLab and create a new branch for
   your work.
 
-- Create a directory for your workflow in ``src/workflows``:
+- Create a directory for your workflow in ``src``:
 
   .. code-block::
 
-    $ mkdir src/workflows/<my_workflow>
-    $ cd src/workflows/<my_workflow>
+    $ mkdir src/<my_workflow>
+    $ cd src/<my_workflow>
 
 - Write the workflow script (``<my_workflow>.py``). See the existing workflows
   for examples of how to do this. The examples :ref:`example_realtime` (:ref:`test_realtime`)
@@ -22,7 +22,7 @@ The steps to develop and test an SDP workflow are as follows:
   List of available Helm charts, which can be used for
   workflows, and their documentation can be found at: TBC
 
-- Create a ``requirements.txt`` file with your workflows' Python requirements,
+- Create a ``requirements.txt`` file with your workflow's Python requirements,
   e.g.
 
   .. code-block::
@@ -83,52 +83,64 @@ The steps to develop and test an SDP workflow are as follows:
 - `Deploy SDP locally <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html>`_
   and `start a shell in the console pod <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#connecting-to-the-configuration-database>`_.
 
-- Create or import the new workflow into the Configuration DB:
+- Add the workflow to the configuration DB. This will tell the SDP where to
+  find the Docker image to run the workflow:
 
   .. code-block::
 
     ska-sdp create workflow <kind>:<name>:<version> '{"image": "<docker-image:version>"}'
 
-  or
+  where the values are:
+
+    - ``<kind>``: ``batch`` or ``realtime``, depending on the kind of workflow
+    - ``<name>``: name of your workflow
+    - ``<version>``: version of your workflow
+    - ``<docker-image:version>``: Docker image you just built from your workflow, including its version tag.
+
+  If you have multiple workflows to add, you can import the definitions with:
 
   .. code-block::
 
     ska-sdp import some-workflows.json
 
-  `<kind>`: batch or realtime, depending on your workflow type
+  An example JSON file for importing workflows can be found at: `Example Workflow JSON
+  <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#example-workflow-definitions-file-content-for-import>`_
 
-  `<name>`: name of your workflow
+- To run the workflow, create a processing block, either via the `Tango interface
+  <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface>`_,
+  or by creating it directly in the configuration DB with `ska-sdp create pb
+  <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#usage>`_.
 
-  `<version>`: version of your workflow
-
-  `<docker-image:version>`: docker image you just built from your workflow, including its version tag.
-
-  Use import if you have multiple workflows to add to the dB. Example JSON file for
-  importing workflows can be found at:
-  `Example Workflow JSON <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#example-workflow-definitions-file-content-for-import>`_
-
-- Then create a processing block to run the workflow, either via the `Tango
-  interface <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface>`_,
-  or by creating it directly in the config DB with `ska-sdp create pb <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#usage>`_.
-
-- Once happy with the workflow, add it to the GitLab CI file (``.gitlab-ci.yml``) in the root of the
-  repository:
+- Once you are happy with the workflow, add it to the GitLab CI file
+  (``.gitlab-ci.yml``) in the root of the repository. You need to add a build
+  and publish job for it:
 
   .. code-block::
 
     build-<my_workflow>:
       extends: .docker_build_workflow
       before_script:
-        - cd src/workflows/<my_workflow>>
+        - cd src/<my_workflow>>
       only:
         changes:
-          - src/workflows/<my_workflow>/*
+          - src/<my_workflow>/*
 
-  This will enable the Docker image to be built and pushed to the
-  SKA Nexus repository when it is merged into the master branch.
+    publish-<my_workflow>:
+      extends: .publish
+      before_script:
+        - cd src/<my_workflow>
+      only:
+        refs:
+          - master
+        changes:
+          - src/<my_workflow>/*
 
-- Add the workflow to the workflow definition file
-  ``src/workflows/workflows.json``.
+  This will enable the Docker image to be built and pushed to the SKA artefact
+  repository when it is merged into the master branch.
+
+- Add the workflow to the workflow definition file ``workflows.json`` in the
+  root of the repository. By default the SDP uses this file to populate the
+  workflow definitions in the configuration DB when it starts up.
 
 - Create a ``README.md`` and add the description and instructions to run your workflow.
   Include it in the documentation:
@@ -138,9 +150,8 @@ The steps to develop and test an SDP workflow are as follows:
 
     .. code-block::
 
-        .. mdinclude:: ../../src/workflows/<my_workflow>/README.md
+        .. mdinclude:: ../../src/<my_workflow>/README.md
 
     - update ``docs/src/index.rst``
 
 - Commit the changes to your branch and push to GitLab.
-
