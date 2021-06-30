@@ -68,7 +68,7 @@ By default, the cheetah\_pipeline is configured (in our config files) to send ca
 </spccl_spead>
 ```
 
-Nagivate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/pipeline. In this directory we'll find the cheetah\_pipeline executable. Run this with -h to see the options. We'll trigger the cheetah pipeline with the following command.
+Navigate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/pipeline. In this directory we'll find the cheetah\_pipeline executable. Run this with -h to see the options. We'll trigger the cheetah pipeline with the following command.
 
 ```bash
 $ ./cheetah_pipeline -s udp_low -p SinglePulse --log-level debug --config /opt/pss-pipeline/configurations/mvp_emulator_config.xml
@@ -77,7 +77,7 @@ $ ./cheetah_pipeline -s udp_low -p SinglePulse --log-level debug --config /opt/p
 Where:
 
 * -s denotes the source of the input data stream (in this case a udp stream from the CBF emulator
-* -p is the specifici pipeline that cheetah should run (in this case the single pulse search pipeline)
+* -p is the specific pipeline that cheetah should run (in this case the single pulse search pipeline)
 * --config is the path to the configuration file
 
 We see some output from the pss pipeline to show that it is in a listening state.
@@ -95,7 +95,10 @@ We see some output from the pss pipeline to show that it is in a listening state
 
 ```
 
-We can then trigger the CBF emulator to send to data into pss where the single pulse search pipeline will process it. Connect a third terminal to this docker container and nagivate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/emulator. In this directory we'll find the cheetah\_emulator executable. Run this with -h to see the options. We'll trigger the emulator with the following command.
+We can then trigger the CBF emulator to send to data into pss where the single pulse search pipeline will process it. 
+Connect a third terminal to this docker container and navigate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/emulator. 
+In this directory we'll find the cheetah\_emulator executable. Run this with -h to see the options. 
+We'll trigger the emulator with the following command.
 
 
 ```bash
@@ -109,14 +112,15 @@ The emulator will produce some log messages to show it's working and streaming G
 [log][tid=140592331782016][/opt/pss-pipeline/thirdparty/cheetah/cheetah/emulator/src/emulator_main.cpp:63][1613572250]emulator using generator: 'gaussian_noise'
 ```
 
-and after a short time, the cheetah\_pipeline will show a bunch of log message to show that it is processing the data that it is receiving from CBF.
+and after a short time, the cheetah\_pipeline will show a bunch of log message to show that it is processing the data 
+that it is receiving from CBF.
 
 ```bash
 [debug][tid=140130935695104][/opt/build/thirdparty/panda/install/include/panda/detail/packet_stream/ChunkerContext.cpp:453][1613572937]clearing chunk 0x7f72c0099610
 [debug][tid=140130935695104][/opt/build/thirdparty/panda/install/include/panda/detail/DataManager.cpp:221][1613572937]pushing data 0x7f72c0099610
 ```
 
-Eventually we'll see that pss-recieve is starting to recieve candidate data when log message like the following appear
+Eventually we'll see that pss-receive is starting to receive candidate data when log message like the following appear
 
 ```bash
 [debug][tid=139774761645952][/opt/pss-pipeline/thirdparty/cheetah/cheetah/exporters/src/SpeadLoggingAdapter.cpp:50][1613572975]spead: packet with 1432 bytes of payload at offset 52279064 added to heap 9
@@ -124,7 +128,9 @@ Eventually we'll see that pss-recieve is starting to recieve candidate data when
 
 Whenever we like, we can simple CTRL+C on the CBF emulator and wait for the final packets to arrive at pss-receive.
 
-What just happened? We triggered the pss pipeline to listen for test data from a udp stream. This data was passed through a single pulse search emulator module and the resulting single pulse candidate data was exported to the pss-receive ppliation.
+What just happened? We triggered the pss pipeline to listen for test data from a udp stream. 
+This data was passed through a single pulse search emulator module and the resulting single pulse candidate 
+data was exported to the pss-receive application.
 
 ## Deploying pss\_receive as an SDP workflow in Minikube
 
@@ -280,7 +286,8 @@ Now we can deploy the CBF emulator to stream UDP time frequency data using the p
 $ kubectl apply -f deploy-cbf-emulator.yaml -n sdp
 ```
 
-This will deploy a cbf-emulator pod. Now let's watch the logs of the pss-receive application and eventually we'll see packets arriving..
+This will deploy a cbf-emulator pod. Now let's watch the logs of the pss-receive application and eventually 
+we'll see packets arriving..
 
 ```bash
 $ kubectl logs -f pss-receive-9rsbf -n sdp
