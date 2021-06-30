@@ -172,3 +172,7 @@ Out[4]: '{"calibration_B": {"host": [[0, "192.168.0.1"], [2000, "192.168.0.1"]],
 ```
 
 ### Changelog
+
+#### 0.3.5
+
+- use python:3.9-slim as the base docker image

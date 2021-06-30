@@ -176,7 +176,7 @@ build-test_daliuge:
 publish-test_daliuge:
   extends: .publish
   before_script:
-    - cd src/test_daligue
+    - cd src/test_daliuge
   only:
     refs:
       - master

@@ -1,4 +1,6 @@
-FROM python:3.7
+FROM python:3.9-slim
+
+RUN apt-get update && apt-get -y install gcc
 
 WORKDIR /app
 
