@@ -17,3 +17,7 @@ The sequence of actions carried out by the workflow is:
 The workflow makes no deployments.
 
 ### Changelog
+
+#### 0.2.3
+
+- use python:3.9-slim as the base docker image

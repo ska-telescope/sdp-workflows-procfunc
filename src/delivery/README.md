@@ -105,3 +105,7 @@ service-account.json:  2382 bytes
 ```
 
 ## Changelog
+
+### 0.1.1
+
+- use python:3.9-slim as the base docker image

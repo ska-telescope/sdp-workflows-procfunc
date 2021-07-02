@@ -111,3 +111,7 @@ This command line would launch the receive workflow on the PSI, behind a proxy, 
 Google Cloud Services bucket.
 
 ## Changelog
+
+### 0.1.6
+
+- use python:3.9-slim as the base docker image

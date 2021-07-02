@@ -340,3 +340,7 @@ $ helm uninstall test
 ```
 
 ## Changelog
+
+### 0.2.2
+
+- use python:3.9-slim as the base docker image
