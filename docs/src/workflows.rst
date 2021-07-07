@@ -10,4 +10,4 @@ Science Pipelines for SDP.
   workflows/pss_receive
   workflows/batch_imaging
   workflows/delivery
-  workflows/test_new_receive
+  workflows/plasma_pipeline

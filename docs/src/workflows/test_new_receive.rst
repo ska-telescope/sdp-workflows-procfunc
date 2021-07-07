@@ -1,1 +1,0 @@
-.. mdinclude:: ../../../src/test_new_receive/README.md
