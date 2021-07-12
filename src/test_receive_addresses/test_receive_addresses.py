@@ -43,6 +43,7 @@ work_phase = pb.create_phase("Work", [])
 
 with work_phase:
 
+    # Deploying a fake execution engine.
     work_phase.ee_deploy_helm("test-receive")
 
     # Add receive addresses to pb

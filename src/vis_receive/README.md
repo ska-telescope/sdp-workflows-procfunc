@@ -119,7 +119,11 @@ config_sbi = '''
 }'''
 ```
 
-This will start up a default deployment. It will launch a receiver pod. All the options supported by the receiver are 
+Note that each workflow may come with multiple versions. Always use the latest number,
+unless you know a specific version that suits your needs, or you follow the example above. (The Changelog
+at the end of this page may help to decide.)
+
+This will start up a default deployment. It will launch a receiver pod.  All the options supported by the receiver are 
 supported by the chart deployment. The defaults set by the workflow currently are:
 
     "image": "nexus.engageska-portugal.pt/ska-docker/cbf_sdp_emulator",
@@ -140,14 +144,11 @@ supported by the chart deployment. The defaults set by the workflow currently ar
     "reception.receiver_port_start": "41000",
     "reception.num_ports": 1,
 
-To add additional parameters or to override default parameters, can be done by adding to the `parameters` key of the PB.
+To add additional parameters or to override default parameters, can be done by adding to the `parameters` key of the PB
+via the configuration string.
 
 Once the pod is deployed with the desired configuration, the receive will be running as a server inside a pod and waiting for
 packets from the emulator (or even the actual CBF).
-
-Note that each workflow may come with multiple versions. Always use the latest number,
-unless you know a specific version that suits your needs, or you follow the example above. (The Changelog
-at the end of this page may help to decide.)
 
 Following functionality are not available with the generic `receive` chart. Would need to update workflow to use the 
 `cbf-sdp-emulator` chart. This is can be done by updating the `deploy_name`
