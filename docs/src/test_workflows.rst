@@ -15,3 +15,4 @@ You can find a detailed description of a batch and a realtime workflow example a
   test_workflows/test_receive_addresses
   test_workflows/test_dask
   test_workflows/test_daliuge
+

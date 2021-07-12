@@ -1,5 +1,4 @@
 --index-url https://nexus.engageska-portugal.pt/repository/pypi/simple
 --extra-index-url https://pypi.org/simple
-dask==2.30.0
-ska-logging
-ska-sdp-workflow >= 0.1.0
+dask
+ska-sdp-workflow

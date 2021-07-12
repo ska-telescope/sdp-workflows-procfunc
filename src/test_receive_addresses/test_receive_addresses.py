@@ -22,17 +22,32 @@ LOG.setLevel(logging.DEBUG)
 # Claim processing block
 pb = workflow.ProcessingBlock()
 
+# Default maximum number of channels per receive process
+max_channels = 20
+
+# Port configuration
+port_start = 9000
+num_ports = 1
+
+# Get the channel link map from SBI
+scan_types = pb.get_scan_types()
+
+# Port and receive process configuration
+host_port, num_process = pb.configure_recv_processes_ports(
+    scan_types, max_channels, port_start, num_ports
+)
+
 # Create work phase
 LOG.info("Create work phase")
 work_phase = pb.create_phase("Work", [])
 
 with work_phase:
 
-    # Get the channel link map from SBI
-    scan_types = pb.get_scan_types()
+    # Deploying a fake execution engine.
+    work_phase.ee_deploy_helm("test-receive")
 
     # Add receive addresses to pb
-    pb.receive_addresses(scan_types)
+    pb.receive_addresses(configured_host_port=host_port)
 
     # ... Do some processing here ...
 

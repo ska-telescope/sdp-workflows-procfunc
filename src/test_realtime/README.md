@@ -18,6 +18,10 @@ The workflow makes no deployments.
 
 ### Changelog
 
+#### 0.2.4
+
+- Ported to use the latest version of workflow library (0.2.4).
+
 #### 0.2.3
 
 - use python:3.9-slim as the base docker image
