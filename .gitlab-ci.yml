@@ -203,26 +203,6 @@ publish-test_dask:
     changes:
       - src/test_dask/*
 
-# test_new_receive
-
-build-test_new_receive:
-  extends: .build
-  before_script:
-    - cd src/test_new_receive
-  only:
-    changes:
-      - src/test_new_receive/*
-
-publish-test_new_receive:
-  extends: .publish
-  before_script:
-    - cd src/test_new_receive
-  only:
-    refs:
-      - master
-    changes:
-      - src/test_new_receive/*
-
 # test_realtime
 
 build-test_realtime:

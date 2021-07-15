@@ -208,3 +208,7 @@ or [k9s](https://k9scli.io/). To access the data created by the workflow, follow
 "Accessing the data" in the "Running the workflow using iTango" section.
 
 ## Changelog
+
+### 0.1.2
+
+- use latest SDP configuration library
