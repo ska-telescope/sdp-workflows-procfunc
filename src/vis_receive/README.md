@@ -112,7 +112,7 @@ config_sbi = '''
       "workflow": {"type": "batch", "id": "test_batch", "version": "0.2.4"},
       "parameters": {},
       "dependencies": [
-        {"pb_id": "pb-mvp01-20200619-00001", "type": ["visibilities"]}
+        {"pb_id": "pb-mvp01-20200619-00000", "type": ["visibilities"]}
       ]
     }
   ]
