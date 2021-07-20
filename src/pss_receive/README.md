@@ -158,7 +158,7 @@ Create the SDP namespace, add the SDP chart repository to helm and launch the SD
 $ kubectl create namespace sdp
 $ helm repo add ska https://nexus.engageska-portugal.pt/repository/helm-chart
 $ helm repo update
-$ helm install test ska/sdp --set helmdeploy.createClusterRole=true
+$ helm install test ska/sdp --set ska-tango-base.itango.enabled=true --set helmdeploy.createClusterRole=true
 ```
 
 You can watch the progress of installing the SDP by running
@@ -167,45 +167,90 @@ You can watch the progress of installing the SDP by running
 $ watch -n 0.5 kubectl get all
 ```
 
-and once it's up and running it should look something like..
+or the k9s terminal-based UI
+
+```bash
+$ k9s
+```
+
+and once it's up and running it should look something like
 
 ```bash
 Every 0.5s: kubectl get all
 
-NAME                                   READY   STATUS	   RESTARTS   AGE
-pod/databaseds-tango-base-test-0       1/1     Running     3          23h
-pod/sdp-console-0                      1/1     Running     0          23h
-pod/sdp-etcd-0                         1/1     Running     0          23h
-pod/sdp-helmdeploy-0                   1/1     Running     0          23h
-pod/sdp-lmc-configurator-dtmrp         0/1     Completed   0          23h
-pod/sdp-lmc-master-0                   1/1     Running     0          23h
-pod/sdp-lmc-subarray-1-0               1/1     Running     0          23h
-pod/sdp-lmc-subarray-2-0               1/1     Running     0          23h
-pod/sdp-lmc-subarray-3-0               1/1     Running     0          23h
-pod/sdp-proccontrol-0                  1/1     Running     0          23h
-pod/tango-base-tangodb-0               1/1     Running     0          23h
-pod/tangotest-tango-base-test-test-0   1/1     Running     0          23h
+NAME                                READY   STATUS      RESTARTS   AGE
+pod/databaseds-tango-base-test-0    1/1     Running     0          78m
+pod/sdp-console-0                   1/1     Running     0          78m
+pod/sdp-etcd-0                      1/1     Running     0          78m
+pod/sdp-helmdeploy-0                1/1     Running     0          78m
+pod/sdp-lmc-configuration-mwm5l     0/1     Completed   0          78m
+pod/sdp-lmc-master-0                1/1     Running     0          78m
+pod/sdp-lmc-subarray-01-0           1/1     Running     0          78m
+pod/sdp-opinterface-0               1/1     Running     0          78m
+pod/sdp-proccontrol-0               1/1     Running     0          78m
+pod/sdp-wf-configuration-l4mqx      0/1     Completed   0          78m
+pod/ska-tango-base-itango-console   1/1     Running     0          78m
+pod/ska-tango-base-tangodb-0        1/1     Running     0          78m
 
-NAME                                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
-service/databaseds-tango-base-test	 NodePort    10.106.233.129   <none>        10000:30412/TCP     23h
-service/kubernetes                       ClusterIP   10.96.0.1        <none>        443/TCP             43h
-service/sdp-console                      ClusterIP   None             <none>        <none>              23h
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)             AGE
+service/databaseds-tango-base-test   NodePort    10.102.71.15    <none>        10000:32544/TCP     78m
+service/kubernetes                   ClusterIP   10.96.0.1       <none>        443/TCP             3h18m
+service/sdp-console                  ClusterIP   None            <none>        <none>              78m
 .
 .
 .
 . and so on
 ```
 
-Now we can connect to the sdp-console pod to give us access to the `ska-sdp` tool which with we can start a workflow.
+The configuration of the receive workflow is managed via adding to the configuration of the processing block. 
+The processing block (PB) can only be created using the iTango interface. This is a realtime workflow, 
+therefore it is linked to a Scheduling Block Instance (SBI). Currently, there is no option to create a PB and 
+link it to SBI using the ska-sdp utility.
 
-```bash
-$ kubectl exec -it sdp-console-0 -- bash
-```
+To run the workflow using iTango interface, follow the instructions at 
+[Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
 
-Now let's start the pss\_receive workflow which will deploy the cheetah receiver container
+Use the following configuration string. This contains one real-time processing block, which uses the pss_receive workflow, 
+and one batch processing block the test_batch as a placeholder workflow:
 
-```bash
-$ ska-sdp create pb realtime:pss_receive:0.2.1
+```python
+config_sbi = '''
+{
+  "interface": "https://schema.skao.int/ska-sdp-assignres/0.2",
+  "id": "sbi-mvp01-20200619-00000",
+  "max_length": 21600.0,
+  "scan_types": [
+    {
+      "id": "science_A",
+      "coordinate_system": "ICRS", "ra": "02:42:40.771", "dec": "-00:00:47.84",
+      "channels": [
+        { "count": 5, "start": 0, "stride": 2, "freq_min": 0.35e9, "freq_max": 0.368e9, "link_map": [[0,0], [200,1], [744,2], [944,3]] }
+      ]
+    },
+    {
+      "id": "calibration_B",
+      "coordinate_system": "ICRS", "ra": "12:29:06.699", "dec": "02:03:08.598",
+      "channels": [
+        { "count": 5, "start": 0, "stride": 2, "freq_min": 0.35e9, "freq_max": 0.368e9, "link_map": [[0,0], [200,1], [744,2], [944,3]] }
+      ]
+    }
+  ],
+  "processing_blocks": [
+    {
+      "id": "pb-mvp01-20200619-00000",
+      "workflow": {"type": "realtime", "id": "pss_receive", "version": "0.2.3"},
+      "parameters": {}
+    },
+    {
+      "id": "pb-mvp01-20200619-00001",
+      "workflow": {"type": "batch", "id": "test_batch", "version": "0.2.4"},
+      "parameters": {},
+      "dependencies": [
+        {"pb_id": "pb-mvp01-20200619-00000", "type": ["visibilities"]}
+      ]
+    }
+  ]
+}'''
 ```
 
 Note that each workflow may come with multiple versions. Always use the latest number,
@@ -228,7 +273,7 @@ $ watch -n 0.5 kubectl get all - n sdp
   job.batch/pss-receive                              0/1           14s        14s
 ```
 
-Looking at the logs from the pss-receive pod we can see the receiver waiting for data...
+Looking at the logs from the pss-receive pod we can see the receiver waiting for data
 
 ```bash
 $ kubectl logs pss-receive-9rsbf -n sdp
@@ -243,7 +288,7 @@ This will deploy cheetah as a new pod. It will wait for data to arrive from the 
 candidate to the pss-receive application.
 
 ```bash
-$ kubectl apply deploy-sender.yaml -n sdp
+$ kubectl apply -f deploy-sender.yaml -n sdp
 ```
 
 Our sender pod "pss-pipeline" will appear in the sdp namespace
@@ -264,7 +309,7 @@ Our sender pod "pss-pipeline" will appear in the sdp namespace
   job.batch/pss-receive                              0/1           3m3s       3m3s
 ```
 
-We can see that the pss-pipeline is waiting for data from the CBF by running..
+We can see that the pss-pipeline is waiting for data from the CBF by running
 
 ```bash
 $ kubectl logs pss-pipeline-wjdm6 -n sdp
@@ -279,7 +324,7 @@ $ kubectl logs pss-pipeline-wjdm6 -n sdp
   [log][tid=140007832209280][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/pipeline/detail/BeamLauncher.cpp:223][1613583537]Starting Beam: 1
 ```
 
-Now we can deploy the CBF emulator to stream UDP time frequency data using the pss_receive:0.2.1
+Now we can deploy the CBF emulator to stream UDP time frequency data using the pss_receive:0.2.3
 [deploy-cbf-emulator.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/pss_receive/deploy-cbf-emulator.yaml):
 
 ```bash
@@ -287,7 +332,7 @@ $ kubectl apply -f deploy-cbf-emulator.yaml -n sdp
 ```
 
 This will deploy a cbf-emulator pod. Now let's watch the logs of the pss-receive application and eventually 
-we'll see packets arriving..
+we'll see packets arriving
 
 ```bash
 $ kubectl logs -f pss-receive-9rsbf -n sdp
@@ -303,7 +348,7 @@ $ kubectl logs -f pss-receive-9rsbf -n sdp
 
 ### Cleaning up.
 
-We can simply turn off the CBF and PSS will the following..
+We can simply turn off the CBF and PSS will the following
 
 ```bash
 kubectl delete job cbf-emulator -n sdp
@@ -340,6 +385,11 @@ $ helm uninstall test
 ```
 
 ## Changelog
+
+### 0.2.3
+
+- Ported to use the latest version of workflow library (0.2.4) and updated to pass values 
+  to the pss-receive Helm chart.
 
 ### 0.2.2
 
