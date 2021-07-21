@@ -210,8 +210,8 @@ link it to SBI using the ska-sdp utility.
 To run the workflow using iTango interface, follow the instructions at 
 [Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
 
-Use the following configuration string. This contains one real-time processing block, which uses the pss_receive workflow, 
-and one batch processing block the test_batch as a placeholder workflow:
+Use the following configuration string. This contains two real-time processing block, which uses the pss_receive workflow,
+test_receive_addresses workflow and one batch processing block the test_batch as a placeholder workflow:
 
 ```python
 config_sbi = '''
@@ -243,6 +243,11 @@ config_sbi = '''
     },
     {
       "id": "pb-mvp01-20200619-00001",
+      "workflow": {"type": "realtime", "id": "test_receive_addresses", "version": "0.3.6"},
+      "parameters": {}
+    },
+    {
+      "id": "pb-mvp01-20200619-00003",
       "workflow": {"type": "batch", "id": "test_batch", "version": "0.2.4"},
       "parameters": {},
       "dependencies": [
