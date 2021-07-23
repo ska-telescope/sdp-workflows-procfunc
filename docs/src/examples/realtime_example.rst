@@ -4,19 +4,19 @@ Real-time workflow
 ==================
 
 This is a simple example of a real-time workflow (``test_realtime``). It requires the
-`logging`, `ska.logging` and `ska_sdp_workflow` Python modules.
+`logging`, `ska_ser_logging` and `ska_sdp_workflow` Python modules.
 
 .. code-block::
 
   import logging
-  import ska.logging
+  import ska_ser_logging
   import ska_sdp_workflow
 
 We initialise the logging
 
 .. code-block::
 
-  ska.logging.configure_logging()
+  ska_ser_logging.configure_logging()
   LOG = logging.getLogger('test_realtime')
   LOG.setLevel(logging.DEBUG)
 
