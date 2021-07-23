@@ -18,6 +18,11 @@ The workflow makes no deployments.
 
 ### Changelog
 
+#### 0.2.5
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
+
 #### 0.2.4
 
 - Ported to use the latest version of workflow library (0.2.4).

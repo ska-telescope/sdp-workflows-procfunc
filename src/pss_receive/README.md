@@ -341,6 +341,11 @@ $ helm uninstall test
 
 ## Changelog
 
+### 0.2.3
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
+
 ### 0.2.2
 
 - use python:3.9-slim as the base docker image

@@ -9,15 +9,15 @@
     {"name": "ska", "path": "artefact.skao.int"}
   ],
   "workflows": [
-    {"type": "batch", "id":  "test_batch", "repository": "ska", "image": "ska-sdp-wflow-test-batch", "versions": ["0.2.0", "0.2.1", "0.2.2", "0.2.3", "0.2.4"]},
-    {"type": "batch", "id":  "test_dask", "repository": "ska", "image": "ska-sdp-wflow-test-dask", "versions": ["0.2.1", "0.2.2", "0.2.3", "0.2.4", "0.2.5"]},
-    {"type": "batch", "id":  "test_daliuge", "repository": "ska", "image": "ska-sdp-wflow-test-daliuge", "versions": ["0.2.0", "0.2.1"]},
+    {"type": "batch", "id":  "test_batch", "repository": "ska", "image": "ska-sdp-wflow-test-batch", "versions": ["0.2.0", "0.2.1", "0.2.2", "0.2.3", "0.2.4", "0.2.5"]},
+    {"type": "batch", "id":  "test_dask", "repository": "ska", "image": "ska-sdp-wflow-test-dask", "versions": ["0.2.1", "0.2.2", "0.2.3", "0.2.4", "0.2.5", "0.2.6"]},
+    {"type": "batch", "id":  "test_daliuge", "repository": "ska", "image": "ska-sdp-wflow-test-daliuge", "versions": ["0.2.0", "0.2.1", "0.2.2"]},
     {"type": "batch", "id":  "batch_imaging", "repository": "ska", "image": "ska-sdp-wflow-batch-imaging", "versions": ["0.1.0", "0.1.1", "0.1.2"]},
     {"type": "batch", "id":  "delivery", "repository": "ska", "image": "ska-sdp-wflow-delivery", "versions": ["0.1.0", "0.1.1"]},
-    {"type": "realtime", "id":  "test_realtime", "repository": "ska", "image": "ska-sdp-wflow-test-realtime", "versions": ["0.2.0", "0.2.1", "0.2.2", "0.2.3", "0.2.4"]},
-    {"type": "realtime", "id":  "test_receive_addresses", "repository": "ska", "image": "ska-sdp-wflow-test-receive-addresses", "versions": ["0.3.2", "0.3.3", "0.3.4", "0.3.5", "0.3.6"]},
-    {"type": "realtime", "id":  "vis_receive", "repository": "ska", "image": "ska-sdp-wflow-vis-receive", "versions": ["0.2.0", "0.2.1", "0.3.1", "0.3.2", "0.3.3"]},
-    {"type": "realtime", "id":  "pss_receive", "repository": "ska", "image": "ska-sdp-wflow-pss-receive", "versions": ["0.2.0", "0.2.1", "0.2.2"]},
-    {"type": "realtime", "id":  "plasma_pipeline", "repository": "ska", "image": "ska-sdp-wflow-plasma-pipeline", "versions": ["0.1.0", "0.1.1", "0.1.2", "0.1.3"]}
+    {"type": "realtime", "id":  "test_realtime", "repository": "ska", "image": "ska-sdp-wflow-test-realtime", "versions": ["0.2.0", "0.2.1", "0.2.2", "0.2.3", "0.2.4", "0.2.5"]},
+    {"type": "realtime", "id":  "test_receive_addresses", "repository": "ska", "image": "ska-sdp-wflow-test-receive-addresses", "versions": ["0.3.2", "0.3.3", "0.3.4", "0.3.5", "0.3.6", "0.3.7"]},
+    {"type": "realtime", "id":  "vis_receive", "repository": "ska", "image": "ska-sdp-wflow-vis-receive", "versions": ["0.2.0", "0.2.1", "0.3.1", "0.3.2", "0.3.3", "0.3.4"]},
+    {"type": "realtime", "id":  "pss_receive", "repository": "ska", "image": "ska-sdp-wflow-pss-receive", "versions": ["0.2.0", "0.2.1", "0.2.2", "0.2.3"]},
+    {"type": "realtime", "id":  "plasma_pipeline", "repository": "ska", "image": "ska-sdp-wflow-plasma-pipeline", "versions": ["0.1.0", "0.1.1", "0.1.2", "0.1.3", "0.1.4"]}
   ]
 }

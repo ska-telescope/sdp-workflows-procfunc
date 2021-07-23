@@ -5,7 +5,7 @@ This workflow deploys and updates the receive addresses attribute with DNS-based
 
 ## Deploying the Receive Workflow in the SDP Prototype
 
-To set up SDP on your local machine using Minikube, follow the instructions at 
+To set up SDP on your local machine using Minikube, follow the instructions at
 [Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
 
 ### Configuring the Workflow
@@ -26,7 +26,7 @@ There are few setups we need to do before running the workflow. First need to do
 
 Extract the file:
 
-    > tar -xf sim-vis.ms.tar 
+    > tar -xf sim-vis.ms.tar
 
 Need to create a persistent volume, to do that create a file called `pvc.yaml` and add the following:
 
@@ -68,14 +68,14 @@ Create persistent volume by executing the following command:
     > kubectl create -f pvc.yaml -n sdp
 
 The configuration of the receive workflow is managed via adding to the configuration of the processing block.
-The processing block (PB) can only be created using the iTango interface. This is a realtime workflow, therefore 
+The processing block (PB) can only be created using the iTango interface. This is a realtime workflow, therefore
 it is linked to a Scheduling Block Instance (SBI). Currently, there is no option to create a PB and link
-it to SBI using the `ska-sdp` utility. 
+it to SBI using the `ska-sdp` utility.
 
-To run the workflow using iTango interface, follow the instructions at 
+To run the workflow using iTango interface, follow the instructions at
 [Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
 
-Use the following configuration string. This contains one real-time processing block, 
+Use the following configuration string. This contains one real-time processing block,
 which uses the `vis_receive` workflow, and one batch processing block the `test_batch` as a placeholder
 workflow:
 
@@ -123,7 +123,7 @@ Note that each workflow may come with multiple versions. Always use the latest n
 unless you know a specific version that suits your needs, or you follow the example above. (The Changelog
 at the end of this page may help to decide.)
 
-This will start up a default deployment. It will launch a receiver pod.  All the options supported by the receiver are 
+This will start up a default deployment. It will launch a receiver pod.  All the options supported by the receiver are
 supported by the chart deployment. The defaults set by the workflow currently are:
 
     "image": "nexus.engageska-portugal.pt/ska-docker/cbf_sdp_emulator",
@@ -150,7 +150,7 @@ via the configuration string.
 Once the pod is deployed with the desired configuration, the receive will be running as a server inside a pod and waiting for
 packets from the emulator (or even the actual CBF).
 
-Following functionality are not available with the generic `receive` chart. Would need to update workflow to use the 
+Following functionality are not available with the generic `receive` chart. Would need to update workflow to use the
 `cbf-sdp-emulator` chart. This is can be done by updating the `deploy_name`
 
 ### Retrieving Data from Kubernetes Deployments
@@ -180,7 +180,7 @@ difficult if the Kubernetes environment itself is behind a firewall. The SDP pro
 that instantiate containers that themselves instantiate containers. Proxies are usually exposed through environment
 variables which requires the environment to be propagated from chart to chart.
 
-The PSI (Prototype System Integration) in an integration environment which is managed by CSIRO and behind a web-proxy. 
+The PSI (Prototype System Integration) in an integration environment which is managed by CSIRO and behind a web-proxy.
 When SDP is deployed, all the elements of the prototype need to be informed of the proxy.
 
 ### Configuring Workflow to Use The Proxy
@@ -190,10 +190,10 @@ the following command will expose the CSIRO proxy to the helm charts of the SDP:
 
     helm upgrade test ska/sdp --set proxy.server=delphinus.atnf.csiro.au:8888 --set proxy.noproxy='{}'
 
-(Above we assumed you deployed SDP using the `ska/sdp` chart with the name `test`.) 
+(Above we assumed you deployed SDP using the `ska/sdp` chart with the name `test`.)
 This will ensure the prototype itself is launched with the correct proxy settings.
 
-But as you would expect this does not necessarily pass the proxy settings on to the workflows. 
+But as you would expect this does not necessarily pass the proxy settings on to the workflows.
 
 In the case of the receive workflow, with the proxy information::
 
@@ -208,10 +208,15 @@ Google Cloud Services bucket.
 
 ### Changelog
 
+#### 0.3.4
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
+
 #### 0.3.3
 
 - Ported to use the latest version of workflow library (0.2.4). Capable to deploy multiple receive processes.
-  Ports published in the receive addresses match with the actual ports of the receive process(es) 
+  Ports published in the receive addresses match with the actual ports of the receive process(es)
 
 #### 0.3.2
 

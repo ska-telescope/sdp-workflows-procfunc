@@ -5,6 +5,11 @@ This is the integration of the cbf-sdp interface emulation and receive workflow 
 
 ## Changelog
 
+### 0.1.4
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
+
 ### 0.1.3
 
 - Ported to use the latest version of workflow library (0.2.4).

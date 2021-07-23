@@ -14,8 +14,8 @@ AssignResources.
 
 ### Testing
 
-[Deploy SDP](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html) 
-and make sure the [iTango console](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface) 
+[Deploy SDP](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html)
+and make sure the [iTango console](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface)
 pod is also running.
 
 After entering the iTango pod, obtain a handle to a subarray device and turn it on:
@@ -83,9 +83,9 @@ You can connect to the configuration database by running the following command:
 
 ```
 kubectl exec -it sdp-console-0 -- bash
-``` 
+```
 
-and from there to see the full list of entries, run 
+and from there to see the full list of entries, run
 
 ```
 ska-sdp list -a
@@ -156,7 +156,7 @@ and the output should look like this:
 }
 ```
 
-To access the SBI run this 
+To access the SBI run this
 
 ```
 ska-sdp get /sb/sbi-mvp01-20200318-0001
@@ -172,6 +172,11 @@ Out[4]: '{"calibration_B": {"host": [[0, "192.168.0.1"], [2000, "192.168.0.1"]],
 ```
 
 ### Changelog
+
+#### 0.3.7
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
 
 #### 0.3.6
 
