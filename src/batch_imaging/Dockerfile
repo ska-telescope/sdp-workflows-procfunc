@@ -1,4 +1,4 @@
-FROM nexus.engageska-portugal.pt/rascil-docker/rascil-full
+FROM artefact.skao.int/rascil-full
 
 WORKDIR /rascil
 

@@ -5,11 +5,11 @@ Example Dask workflow.
 import time
 import logging
 import dask
-import ska.logging
+import ska_ser_logging
 from ska_sdp_workflow import workflow
 
 # Initialise logging
-ska.logging.configure_logging()
+ska_ser_logging.configure_logging()
 LOG = logging.getLogger("test_dask")
 LOG.setLevel(logging.INFO)
 

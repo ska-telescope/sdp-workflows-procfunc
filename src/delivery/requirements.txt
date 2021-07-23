@@ -1,6 +1,4 @@
---index-url https://nexus.engageska-portugal.pt/repository/pypi/simple
---extra-index-url https://pypi.org/simple
-
+--index-url https://artefact.skao.int/repository/pypi-all/simple
 dask
 distributed
 google-cloud-storage

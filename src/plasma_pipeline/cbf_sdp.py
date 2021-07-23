@@ -7,11 +7,11 @@ This just deploys the simple-pair chart
 # pylint: disable=invalid-name
 
 import logging
-import ska.logging
+import ska_ser_logging
 from ska_sdp_workflow import workflow
 
 # Initialise logging
-ska.logging.configure_logging()
+ska_ser_logging.configure_logging()
 log = logging.getLogger("cbf_sdp")
 log.setLevel(logging.INFO)
 
