@@ -7,11 +7,11 @@ Deploys and update receive addresses attribute with DNS-based IP address
 # pylint: disable=invalid-name
 
 import logging
-import ska.logging
+import ska_ser_logging
 from ska_sdp_workflow import workflow
 
 # Initialise logging
-ska.logging.configure_logging()
+ska_ser_logging.configure_logging()
 log = logging.getLogger("vis_receive")
 log.setLevel(logging.INFO)
 

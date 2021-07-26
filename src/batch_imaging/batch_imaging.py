@@ -132,9 +132,8 @@ def main(argv):
 
     # Deploy Dask EE
     LOG.info("Deploying Dask EE")
-    image = (
-        "nexus.engageska-portugal.pt/sdp-prototype/workflow-batch-imaging:{}"
-        "".format(pb.workflow["version"])
+    image = "artefact.skao.int/ska-sdp-wflow-batch-imaging:{}".format(
+        pb.workflow["version"]
     )
     buffers = [buffer_vis, buffer_img]
     deploy_id, client = ee_dask_deploy(

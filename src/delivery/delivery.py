@@ -159,7 +159,7 @@ def main(argv):
 
     # Deploy Dask EE
     LOG.info("Deploying Dask EE")
-    image = "nexus.engageska-portugal.pt/sdp-prototype/workflow-delivery:{}" "".format(
+    image = "artefact.skao.int/ska-sdp-wflow-delivery:{}".format(
         pb.workflow.get("version")
     )
     deploy_id, client = ee_dask_deploy(

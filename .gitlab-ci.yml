@@ -3,20 +3,17 @@ variables:
 
 workflow:
   rules:
-    - if: $CI_MERGE_REQUEST_ID
     - if: $CI_COMMIT_BRANCH
 
 stages:
-  - black
-  - docs
-  - build
+  - test
   - publish
 
 # Check black formatting of code
 
 black:
-  stage: black
-  image: python:latest
+  stage: test
+  image: python:3.9-slim
   before_script:
     - pip install black
   script:
@@ -25,8 +22,8 @@ black:
 # Build documentation
 
 docs:
-  stage: docs
-  image: python:latest
+  stage: test
+  image: python:3.9
   before_script:
     - pip install -r docs/requirements.txt
   script:
@@ -37,231 +34,168 @@ docs:
       - docs/build/html
     expire_in: 1 week
 
-# Templates for build and publish jobs
-
-.build:
-  stage: build
-  image: docker:stable
-  services:
-    - docker:dind
-  script:
-    - apk add make git
-    - make build PREFIX_BUILD=${CI_REGISTRY_IMAGE}
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - make push PREFIX_BUILD=${CI_REGISTRY_IMAGE}
+# Templates for publish jobs
 
 .publish:
   stage: publish
-  image: docker:stable
+  image: docker:20.10.7
   services:
-    - docker:dind
-  script:
+    - docker:20.10.7-dind
+  before_script:
     - apk add make git
-    - make pull PREFIX_BUILD=${CI_REGISTRY_IMAGE}
-    - docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_HOST
-    - make push_release PREFIX_BUILD=${CI_REGISTRY_IMAGE} || true
+    - echo $PASSWORD | docker login --username $USERNAME --password-stdin $REGISTRY
+  script:
+    - cd $SRCDIR
+    - make build
+    - make push
 
-# Build and publish jobs for each workflow
+.publish-dev:
+  extends: .publish
+  variables:
+    REGISTRY: $CI_REGISTRY
+    USERNAME: $CI_REGISTRY_USER
+    PASSWORD: $CI_REGISTRY_PASSWORD
+    PREFIX: $CI_REGISTRY_IMAGE
+    GITHASH: $CI_COMMIT_SHORT_SHA
+  rules:
+    - if: '$CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
+      changes:
+        - $SRCDIR/**/*
+
+.publish-release:
+  extends: .publish
+  variables:
+    REGISTRY: $CAR_OCI_REGISTRY_HOST
+    USERNAME: $CAR_OCI_REGISTRY_USERNAME
+    PASSWORD: $CAR_OCI_REGISTRY_PASSWORD
+    PREFIX: $CAR_OCI_REGISTRY_HOST
+    RELEASE: "true"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - $SRCDIR/**/*
+
+# Publish jobs for each workflow
 
 # batch_imaging
 
-build-batch_imaging:
-  extends: .build
-  before_script:
-     - cd src/batch_imaging
-  only:
-    changes:
-      - src/batch_imaging/*
+# publish-dev-batch-imaging:
+#   extends: .publish-dev
+#   variables:
+#     SRCDIR: src/batch_imaging
 
-publish-batch_imaging:
-  extends: .publish
-  before_script:
-    - cd src/batch_imaging
-  only:
-    refs:
-      - master
-    changes:
-      - src/batch_imaging/*
+# publish-release-batch-imaging:
+#   extends: .publish-release
+#   variables:
+#     SRCDIR: src/batch_imaging
 
 # delivery
 
-build-delivery:
-  extends: .build
-  before_script:
-    - cd src/delivery
-  only:
-    changes:
-      - src/delivery/*
+# publish-dev-delivery:
+#   extends: .publish-dev
+#   variables:
+#     SRCDIR: src/delivery
 
-publish-delivery:
-  extends: .publish
-  before_script:
-    - cd src/delivery
-  only:
-    refs:
-      - master
-    changes:
-      - src/delivery/*
+# publish-release-delivery:
+#   extends: .publish-release
+#   variables:
+#     SRCDIR: src/delivery
 
 # plasma_pipeline
 
-build-plasma_pipeline:
-  extends: .build
-  before_script:
-    - cd src/plasma_pipeline
-  only:
-    changes:
-      - src/plasma_pipeline/*
+publish-dev-plasma-pipeline:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/plasma_pipeline
 
-publish-plasma_pipeline:
-  extends: .publish
-  before_script:
-    - cd src/plasma_pipeline
-  only:
-    refs:
-      - master
-    changes:
-      - src/plasma_pipeline/*
+publish-release-plasma-pipeline:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/plasma_pipeline
 
 # pss_receive
 
-build-pss_receive:
-  extends: .build
-  before_script:
-    - cd src/pss_receive
-  only:
-    changes:
-      - src/pss_receive/*
+publish-dev-pss-receive:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/pss_receive
 
-publish-pss_receive:
-  extends: .publish
-  before_script:
-    - cd src/pss_receive
-  only:
-    refs:
-      - master
-    changes:
-      - src/pss_receive/*
+publish-release-pss-receive:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/pss_receive
 
 # test_batch
 
-build-test_batch:
-  extends: .build
-  before_script:
-    - cd src/test_batch
-  only:
-    changes:
-      - src/test_batch/*
+publish-dev-test-batch:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/test_batch
 
-publish-test_batch:
-  extends: .publish
-  before_script:
-    - cd src/test_batch
-  only:
-    refs:
-      - master
-    changes:
-      - src/test_batch/*
+publish-release-test-batch:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/test_batch
 
 # test_daliuge
 
-build-test_daliuge:
-  extends: .build
-  before_script:
-    - cd src/test_daliuge
-  only:
-    changes:
-      - src/test_daliuge/*
+publish-dev-test-daliuge:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/test_daliuge
 
-publish-test_daliuge:
-  extends: .publish
-  before_script:
-    - cd src/test_daliuge
-  only:
-    refs:
-      - master
-    changes:
-      - src/test_daliuge/*
+publish-release-test-daliuge:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/test_daliuge
 
 # test_dask
 
-build-test_dask:
-  extends: .build
-  before_script:
-    - cd src/test_dask
-  only:
-    changes:
-      - src/test_dask/*
+publish-dev-test-dask:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/test_dask
 
-publish-test_dask:
-  extends: .publish
-  before_script:
-    - cd src/test_dask
-  only:
-    refs:
-      - master
-    changes:
-      - src/test_dask/*
+publish-release-test-dask:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/test_dask
 
 # test_realtime
 
-build-test_realtime:
-  extends: .build
-  before_script:
-    - cd src/test_realtime
-  only:
-    changes:
-      - src/test_realtime/*
+publish-dev-test-realtime:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/test_realtime
 
-publish-test_realtime:
-  extends: .publish
-  before_script:
-    - cd src/test_realtime
-  only:
-    refs:
-      - master
-    changes:
-      - src/test_realtime/*
+publish-release-test-realtime:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/test_realtime
 
 # test_receive_addresses
 
-build-test_receive_addresses:
-  extends: .build
-  before_script:
-    - cd src/test_receive_addresses
-  only:
-    changes:
-      - src/test_receive_addresses/*
+publish-dev-test-receive-addresses:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/test_receive_addresses
 
-publish-test_receive_addresses:
-  extends: .publish
-  before_script:
-    - cd src/test_receive_addresses
-  only:
-    refs:
-      - master
-    changes:
-      - src/test_receive_addresses/*
+publish-release-test-receive-addresses:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/test_receive_addresses
 
 # vis_receive
 
-build-vis_receive:
-  extends: .build
-  before_script:
-    - cd src/vis_receive
-  only:
-    changes:
-      - src/vis_receive/*
+publish-dev-vis-receive:
+  extends: .publish-dev
+  variables:
+    SRCDIR: src/vis_receive
 
-publish-vis_receive:
-  extends: .publish
-  before_script:
-    - cd src/vis_receive
-  only:
-    refs:
-      - master
-    changes:
-      - src/vis_receive/*
+publish-release-vis-receive:
+  extends: .publish-release
+  variables:
+    SRCDIR: src/vis_receive
 
 # Create Gitlab CI badges from CI metrics
 # https://developer.skatelescope.org/en/latest/tools/continuousintegration.html#automated-collection-of-ci-health-metrics-as-part-of-the-ci-pipeline

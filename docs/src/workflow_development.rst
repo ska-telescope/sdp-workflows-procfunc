@@ -26,10 +26,8 @@ The steps to develop and test an SDP workflow are as follows:
   e.g.
 
   .. code-block::
-
-    --index-url https://nexus.engageska-portugal.pt/repository/pypi/simple
-    --extra-index-url https://pypi.org/simple
-    ska-logging
+    --index-url https://artefact.skao.int/repository/pypi-all/simple
+    ska-ser-logging
     ska-sdp-workflow
 
 - Create a ``Dockerfile`` for building the workflow image, e.g.
@@ -54,7 +52,7 @@ The steps to develop and test an SDP workflow are as follows:
 
   .. code-block::
 
-    NAME := workflow-<my-workflow>
+    NAME := ska-sdp-wflow-<my-workflow>
     VERSION := $(shell cat version.txt)
 
     include ../../make/Makefile
@@ -64,7 +62,6 @@ The steps to develop and test an SDP workflow are as follows:
   .. code-block::
 
     $ make build
-    $ make tag_release
 
   This will add it to your local Docker daemon where it can be used for testing
   with a local deployment of the SDP.
@@ -75,7 +72,6 @@ The steps to develop and test an SDP workflow are as follows:
 
      $ eval $(minikube -p minikube docker-env)
      $ make build
-     $ make tag_release
 
   This will point Docker towards the ``minikube`` Docker repository and will then build and
   tag the new workflow accordingly.

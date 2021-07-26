@@ -3,11 +3,11 @@ Workflow to test real-time processing.
 """
 
 import logging
-import ska.logging
+import ska_ser_logging
 
 from ska_sdp_workflow import workflow
 
-ska.logging.configure_logging()
+ska_ser_logging.configure_logging()
 LOG = logging.getLogger("test_realtime")
 LOG.setLevel(logging.DEBUG)
 

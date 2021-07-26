@@ -1,26 +1,26 @@
 # PSS Receive Workflow
 
-This is a cheetah-based User Datagram Protocol (UDP) receiver for ingesting PSS (Pulsar Search Sub-system) 
+This is a cheetah-based User Datagram Protocol (UDP) receiver for ingesting PSS (Pulsar Search Sub-system)
 single pulse candidate data in the SDP (Science Data Processor).
 
 ## Description
 
-Cheetah is a set of real-time pulsar and fast-transient searching pipelines designed to process data from the CBF (Correlator and Beamformer). 
-Its end products are candidate pulsar and transient signals which are exported to the SDP for further analysis. 
+Cheetah is a set of real-time pulsar and fast-transient searching pipelines designed to process data from the CBF (Correlator and Beamformer).
+Its end products are candidate pulsar and transient signals which are exported to the SDP for further analysis.
 The pipelines are started using a command line executable which can be configured using command line flags or
-by passing a file containing pipeline configuration information.  A full description of the pipeline can be found in the 
+by passing a file containing pipeline configuration information.  A full description of the pipeline can be found in the
 PSS Detailed Design Document.
 
-For the purposes of this demonstration we will use the cheetah\_pipeline executable (PSS) to receive 
-UDP time-frequency data from a CBF emulator pipeline, from which it will produce single-pulse candidate data 
-which is exported over a UDP stream using [SPEAD2](https://spead2.readthedocs.io/en/latest/). 
+For the purposes of this demonstration we will use the cheetah\_pipeline executable (PSS) to receive
+UDP time-frequency data from a CBF emulator pipeline, from which it will produce single-pulse candidate data
+which is exported over a UDP stream using [SPEAD2](https://spead2.readthedocs.io/en/latest/).
 We will use a separate cheetah based pipeline to "receive" this data on the SDP side.
 
 The executables are served from the [pss-centos-docker repository](https://gitlab.com/ska-telescope/pss-centos-docker).
 
 ## Running send and receive standalone
 
-To demonstrate their functionality, it is possible to deploy the CBF emulator, 
+To demonstrate their functionality, it is possible to deploy the CBF emulator,
 the PSS pipeline and the SDP receive pipeline in same docker container by downloading and running the pss docker.
 
 Pull the PSS docker image by running.
@@ -30,7 +30,7 @@ $ docker pull nexus.engageska-portugal.pt/ska-telescope/pss-docker-centos-dev:1.
 ```
 
 It's important to ensure that the maximum receive buffer size for all connection types is appropriately tuned on the host,
-so it may be necessary to run the following command before we start the docker container. 
+so it may be necessary to run the following command before we start the docker container.
 If this is not set correctly, SPEAD2 will print a warning to the console when we start the receiver and we risk packets being lost.
 (Note, the below command was tested on Linux.)
 
@@ -95,9 +95,9 @@ We see some output from the pss pipeline to show that it is in a listening state
 
 ```
 
-We can then trigger the CBF emulator to send to data into pss where the single pulse search pipeline will process it. 
-Connect a third terminal to this docker container and navigate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/emulator. 
-In this directory we'll find the cheetah\_emulator executable. Run this with -h to see the options. 
+We can then trigger the CBF emulator to send to data into pss where the single pulse search pipeline will process it.
+Connect a third terminal to this docker container and navigate to /opt/build/thirdparty/cheetah/src/cheetah-build/cheetah/emulator.
+In this directory we'll find the cheetah\_emulator executable. Run this with -h to see the options.
 We'll trigger the emulator with the following command.
 
 
@@ -112,7 +112,7 @@ The emulator will produce some log messages to show it's working and streaming G
 [log][tid=140592331782016][/opt/pss-pipeline/thirdparty/cheetah/cheetah/emulator/src/emulator_main.cpp:63][1613572250]emulator using generator: 'gaussian_noise'
 ```
 
-and after a short time, the cheetah\_pipeline will show a bunch of log message to show that it is processing the data 
+and after a short time, the cheetah\_pipeline will show a bunch of log message to show that it is processing the data
 that it is receiving from CBF.
 
 ```bash
@@ -128,13 +128,13 @@ Eventually we'll see that pss-receive is starting to receive candidate data when
 
 Whenever we like, we can simple CTRL+C on the CBF emulator and wait for the final packets to arrive at pss-receive.
 
-What just happened? We triggered the pss pipeline to listen for test data from a udp stream. 
-This data was passed through a single pulse search emulator module and the resulting single pulse candidate 
+What just happened? We triggered the pss pipeline to listen for test data from a udp stream.
+This data was passed through a single pulse search emulator module and the resulting single pulse candidate
 data was exported to the pss-receive application.
 
 ## Deploying pss\_receive as an SDP workflow in Minikube
 
-Generalised instruction for deploying the SDP can be found at 
+Generalised instruction for deploying the SDP can be found at
 [Running SDP stand-alone](https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html).
 
 Start minikube,
@@ -156,9 +156,9 @@ Create the SDP namespace, add the SDP chart repository to helm and launch the SD
 
 ```bash
 $ kubectl create namespace sdp
-$ helm repo add ska https://nexus.engageska-portugal.pt/repository/helm-chart
+$ helm repo add ska https://artefact.skao.int/repository/helm-internal
 $ helm repo update
-$ helm install test ska/sdp --set helmdeploy.createClusterRole=true
+$ helm install test ska/ska-sdp --set helmdeploy.createClusterRole=true
 ```
 
 You can watch the progress of installing the SDP by running
@@ -235,11 +235,11 @@ $ kubectl logs pss-receive-9rsbf -n sdp
 [debug][tid=139702737897344][/opt/pss-pipeline/thirdparty/cheetah/cheetah/../cheetah/exporters/detail/DataExport.cpp:61][1613583356]Creating sink of type sp_candidate_data (id=candidate_files)
 ```
 
-and we have a service waiting to route data sent to the hostname pss-receive to this pod. 
-Now to send this some data we can use the pss-pipeline kubernetes manifest, 
-[deploy-sender.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/pss_receive/deploy-sender.yaml). 
-This will deploy cheetah as a new pod. It will wait for data to arrive from the CBF emulator 
-(which we'll deploy shortly) and when it arrives will run the single pulse emulator pipeline and export the 
+and we have a service waiting to route data sent to the hostname pss-receive to this pod.
+Now to send this some data we can use the pss-pipeline kubernetes manifest,
+[deploy-sender.yaml](https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines/-/blob/master/src/pss_receive/deploy-sender.yaml).
+This will deploy cheetah as a new pod. It will wait for data to arrive from the CBF emulator
+(which we'll deploy shortly) and when it arrives will run the single pulse emulator pipeline and export the
 candidate to the pss-receive application.
 
 ```bash
@@ -286,7 +286,7 @@ Now we can deploy the CBF emulator to stream UDP time frequency data using the p
 $ kubectl apply -f deploy-cbf-emulator.yaml -n sdp
 ```
 
-This will deploy a cbf-emulator pod. Now let's watch the logs of the pss-receive application and eventually 
+This will deploy a cbf-emulator pod. Now let's watch the logs of the pss-receive application and eventually
 we'll see packets arriving..
 
 ```bash
@@ -340,6 +340,11 @@ $ helm uninstall test
 ```
 
 ## Changelog
+
+### 0.2.3
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
 
 ### 0.2.2
 

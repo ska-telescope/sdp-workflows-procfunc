@@ -1,7 +1,7 @@
 ## Test Dask Workflow
 
-The `test_dask` workflow is designed to test deploying two 
-instances of a Dask execution engine and executing a simple function on each one. 
+The `test_dask` workflow is designed to test deploying two
+instances of a Dask execution engine and executing a simple function on each one.
 
 The sequence of actions carried out by the workflow is:
 
@@ -16,6 +16,11 @@ The sequence of actions carried out by the workflow is:
 * Sets processing block `status` to `'FINISHED'`
 
 ### Changelog
+
+#### 0.2.6
+
+- Use dependencies from the central artefact repository and publish the
+  workflow image there.
 
 #### 0.2.5
 
