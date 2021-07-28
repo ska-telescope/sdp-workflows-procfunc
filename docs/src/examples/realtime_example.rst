@@ -46,9 +46,11 @@ phase, which in this example we call the 'work' phase:
 
 We start the work phase using a ``with`` block. On entry, it waits until the
 resources are available and in the meantime it monitors the processing block
-state and scheduling block instance to check if it has been cancelled. Once the
-resources are available, it proceeds into the body of the ``with`` block and
-deploys a Helm chart using the ``ee_deploy_helm`` method.
+state. Once the resources are available, it proceeds into the body of the
+``with`` block and deploys a Helm chart using the ``ee_deploy_helm`` method.
+This happens in a separate thread, so the method returns immediately.
+It then enters the loop at the end, which monitors the scheduling block instance
+to check if it has been cancelled.
 
 .. code-block::
 
@@ -61,9 +63,5 @@ deploys a Helm chart using the ``ee_deploy_helm`` method.
           txn.loop(wait=True)
 
 On exiting the ``with`` block it waits until the scheduling block instance is
-finished or cancelled. When the scheduling block instance state is updated, it
+finished. When the scheduling block instance state is updated, it
 then removes the execution engine and updates the processing block state.
-
-TODO: how does the above work? It's a bit confusing -- when does the helm deployment
-happen? before or after the wait_loop finishes? from code it seems before,
-but doc says after...

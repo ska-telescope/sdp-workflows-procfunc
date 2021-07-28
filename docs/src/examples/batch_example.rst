@@ -67,9 +67,7 @@ engine using the ``ee_deploy_test`` method to execute our function. The example
 we defined sleeps for the specified duration. This happens in a separate
 thread, so the method returns immediately. It then enters the loop at the end
 which waits until the execution is finished, and also monitors the processing
-block state. On exiting the ``with`` block it removes the execution engine
-deployment and updates the processing block state with the status of the
-workflow.
+block state and whether the deployment has been cancelled or not.
 
 .. code-block::
 
@@ -82,3 +80,7 @@ workflow.
       for txn in work_phase.wait_loop():
           if deploy.is_finished(txn):
               break
+
+On exiting the ``with`` block, it removes the execution engine
+deployment and updates the processing block state with the status of the
+workflow.
