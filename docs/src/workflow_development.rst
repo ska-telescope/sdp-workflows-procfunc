@@ -3,8 +3,11 @@ Workflow Development
 
 The steps to develop and test an SDP workflow are as follows:
 
-- Clone the ska-sdp-science-pipelines repository from GitLab and create a new branch for
-  your work.
+1. Create the workflow
+----------------------
+
+- Clone the `ska-sdp-science-pipelines repository <https://gitlab.com/ska-telescope/sdp/ska-sdp-science-pipelines>`_
+  from GitLab and create a new branch for your work.
 
 - Create a directory for your workflow in ``src``:
 
@@ -34,7 +37,7 @@ The steps to develop and test an SDP workflow are as follows:
 
   .. code-block::
 
-    FROM python:3.9
+    FROM python:3.9-slim
 
     COPY requirements.txt ./
     RUN pip install -r requirements.txt
@@ -43,7 +46,7 @@ The steps to develop and test an SDP workflow are as follows:
     COPY <my_workflow>.py ./
     ENTRYPOINT ["python", "<my_workflow>.py"]
 
-  Use the base-image of your choice, preferably the latest numbered version of it, e.g. python:3.9.
+  Use the base-image of your choice, preferably the latest numbered slim version of it, e.g. python:3.9-slim.
 
 - Create a file called ``version.txt`` containing the semantic version number of
   the workflow.
@@ -57,29 +60,23 @@ The steps to develop and test an SDP workflow are as follows:
 
     include ../../make/Makefile
 
-- Build the workflow image:
+2. Test the workflow locally
+----------------------------
+
+- Build the workflow image. If you are using ``minikube`` to deploy the SDP, run:
 
   .. code-block::
 
+    $ eval $(minikube -p minikube docker-env)
     $ make build
 
-  This will add it to your local Docker daemon where it can be used for testing
-  with a local deployment of the SDP.
-
-  For example with a local installation of ``minikube``
-
-  .. code-block::
-
-     $ eval $(minikube -p minikube docker-env)
-     $ make build
-
-  This will point Docker towards the ``minikube`` Docker repository and will then build and
-  tag the new workflow accordingly.
+  else, just run the ``make build`` command. This will add the image to your ``minikube``
+  or local Docker daemon where it can be used for testing with a local deployment of the SDP.
 
 - `Deploy SDP locally <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html>`_
   and `start a shell in the console pod <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#connecting-to-the-configuration-database>`_.
 
-- Add the workflow to the configuration DB. This will tell the SDP where to
+- Add the new workflow to the configuration DB. This will tell the SDP where to
   find the Docker image to run the workflow:
 
   .. code-block::
@@ -106,6 +103,9 @@ The steps to develop and test an SDP workflow are as follows:
   <https://developer.skao.int/projects/ska-sdp-integration/en/latest/running/standalone.html#accessing-the-tango-interface>`_,
   or by creating it directly in the configuration DB with `ska-sdp create pb
   <https://developer.skao.int/projects/ska-sdp-config/en/latest/cli.html#usage>`_.
+
+3. Finish development and deploy the workflow
+---------------------------------------------
 
 - Once you are happy with the workflow, add it to the GitLab CI file
   (``.gitlab-ci.yml``) in the root of the repository. You need to add a build
