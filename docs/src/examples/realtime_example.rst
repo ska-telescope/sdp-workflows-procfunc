@@ -55,6 +55,15 @@ deploys a Helm chart using the ``ee_deploy_helm`` method.
   with work_phase:
       work_phase.ee_deploy_helm('cbf-sdp-emulator')
 
-On exit from the ``with`` block it waits until the scheduling block instance is
+      for txn in work_phase.wait_loop():
+          if work_phase.is_sbi_finished(txn):
+              break
+          txn.loop(wait=True)
+
+On exiting the ``with`` block it waits until the scheduling block instance is
 finished or cancelled. When the scheduling block instance state is updated, it
 then removes the execution engine and updates the processing block state.
+
+TODO: how does the above work? It's a bit confusing -- when does the helm deployment
+happen? before or after the wait_loop finishes? from code it seems before,
+but doc says after...
